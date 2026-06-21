@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Namungoona High School - Official Election Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #004699; --secondary: #ffc107; --dark: #0f172a; --light: #ffffff; --success: #10b981; }
         * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
         body { background-color: #f8fafc; color: var(--dark); padding: 10px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1300px; margin: 0 auto; }
         
         .master-header {
             background: linear-gradient(135deg, #002b5c, var(--primary));
@@ -27,11 +28,13 @@
         .header-text h1 { font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
         .header-text p { font-size: 13px; color: #e2e8f0; }
         .header-contact { font-size: 11px; color: #cbd5e1; margin-top: 4px; }
+        
         .header-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; width: 100%; }
         @media (min-width: 768px) { .header-actions { width: auto; justify-content: flex-end; } }
         .user-tag { background: rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: white; text-align: center; }
         .btn-logout { background-color: #ef4444; color: white; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
         .btn-print { background-color: #0284c7; color: white; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .btn-admin { background-color: #8b5cf6; color: white; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
         
         .quick-stats-bar { display: none; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         @media (min-width: 768px) { .quick-stats-bar { grid-template-columns: repeat(4, 1fr); gap: 15px; } }
@@ -41,10 +44,10 @@
         
         .auth-card { background: white; padding: 30px 20px; border-radius: 12px; max-width: 450px; margin: 40px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; border: 1px solid #cbd5e1; }
         .auth-card .login-logo { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary); overflow: hidden; }
-        .auth-card select { width: 100%; padding: 12px; margin: 15px 0; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; font-weight: 600; text-align: center; }
+        .auth-card input { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; font-weight: 600; text-align: center; outline: none; }
         
         .dashboard { display: none; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 992px) { .dashboard { grid-template-columns: 1fr 1.5fr; } }
+        @media (min-width: 992px) { .dashboard { grid-template-columns: 1fr 1.75fr; } }
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         @media (min-width: 576px) { .card { padding: 20px; } }
         h3 { color: var(--primary); margin-bottom: 15px; font-size: 13px; font-weight: 700; border-bottom: 2px solid var(--secondary); padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -52,9 +55,20 @@
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 700; font-size: 11px; margin-bottom: 6px; color: #475569; text-transform: uppercase; }
         select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; background: white; }
+        input[type="text"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
         input[type="number"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 16px; font-weight: 700; text-align: center; outline: none; }
-        input[type="number"]:focus { border-color: var(--primary); }
         
+        .search-engine { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-engine input { flex: 2; }
+        .search-engine select { flex: 1; }
+
+        .admin-pane { display: none; background: #faf5ff; border: 1px solid #e9d5ff; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #e9d5ff; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #6b21a8; cursor: pointer; opacity: 0.6; padding: 4px 8px; }
+        .tab-btn.active { opacity: 1; border-bottom: 2px solid #9333ea; }
+        .pane-section { display: none; }
+        .pane-section.active { display: block; }
+
         .centers-grid { display: grid; grid-template-columns: 1fr; gap: 12px; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
         @media (min-width: 480px) { .centers-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
         .center-box { text-align: center; }
@@ -71,7 +85,8 @@
         td.candidate-name-cell { white-space: normal; min-width: 140px; font-weight: 600; }
         tr.winner-row { background-color: #f0f9ff; font-weight: bold; border-left: 4px solid #0284c7; }
         .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: #e0f2fe; color: #0369a1; display: inline-block; }
-        .btn-del { background-color: #ef4444; color: white; border: none; padding: 4px 8px; font-size: 10px; width: auto; display: inline-block; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-del { background-color: #ef4444; color: white; border: none; padding: 4px 8px; font-size: 10px; width: auto; display: inline-block; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 4px; }
+        .btn-purge { background-color: #b91c1c; color: white; border: none; padding: 4px 8px; font-size: 10px; width: auto; display: inline-block; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .print-footer { display: none; text-align: center; font-weight: bold; margin-top: 40px; font-size: 13px; border-top: 1px solid #000; padding-top: 15px; }
 
         @media print {
@@ -88,7 +103,7 @@
                 content: "P.O Box 26935 Kampala\A Tel: +256 700 627 960 / +256 788 772 660";
                 white-space: pre-wrap; display: block; font-size: 11px !important; font-weight: 500 !important; margin-top: 4px;
             }
-            #authSection, .dashboard > div:first-child, .header-actions, #quickStats { display: none !important; }
+            #authSection, .dashboard > div:first-child, .header-actions, #quickStats, .search-engine, .admin-pane { display: none !important; }
             .dashboard { display: block !important; width: 100% !important; }
             .dashboard > div:last-child { width: 100% !important; }
             .card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
@@ -98,7 +113,7 @@
             th { background-color: #f0f0f0 !important; text-transform: uppercase; font-weight: bold; }
             tr.winner-row { background-color: transparent !important; border-left: none !important; }
             .badge { background: none !important; padding: 0 !important; font-size: 11px !important; color: black !important; }
-            .btn-del { display: none !important; }
+            .btn-del, .btn-purge { display: none !important; }
             .print-footer { display: block !important; }
         }
     </style>
@@ -120,6 +135,7 @@
         </div>
         <div class="header-actions">
             <span id="userTag" class="user-tag" style="display: none;"></span>
+            <button id="adminToggleBtn" class="btn-admin" style="display:none;" onclick="toggleAdminPane()"><i class="fas fa-user-cog"></i> System Registry Settings</button>
             <button id="printBtn" class="btn-print" onclick="window.print()" style="display:none;">🖨️ Export Standings</button>
             <button id="logoutBtn" class="btn-logout" onclick="logout()" style="display:none;">Logout</button>
         </div>
@@ -136,7 +152,8 @@
         </div>
         <div class="stat-card">
             <h4>Valid Votes</h4>
-            <p id="statValid" style="color: var(--success);">0</p>        </div>
+            <p id="statValid" style="color: var(--success);">0</p>
+        </div>
         <div class="stat-card">
             <h4>Invalid Votes</h4>
             <p id="statInvalid" style="color: #ef4444;">0</p>
@@ -148,21 +165,68 @@
             <img src="SCHOOL BADGE.jpg" alt="NHS Badge" id="loginLogoImg" onerror="this.parentNode.innerText='🏫';">
         </div>
         <h3>System Access Portal</h3>
-        <select id="loginUsername" onchange="login()">
-            <option value="">-- Click to Select Your Name --</option>
-            <option value="alvink123">Mr. ALVIN. K.</option>
-            <option value="mkj123">MR. MUHEREZA KENNETH JOEL</option>
-            <option value="gk123">MDM. KIRABIRA GLENNY</option>
-            <option value="oscar123">KAMYA OSCAR (Admin)</option>
-            <option value="ronnie123">HON. SSEMAGANDA RONALD (Admin)</option>
-            <option value="njuki123">MR. NJUKI JOSEPH MUSAAZI (Admin)</option>
-            <option value="richard123">MR. SEMIGGA RICHARD (Admin)</option>
-            <option value="admin123">MDM. MUYINDA SARAH (Admin)</option>
-        </select>
+        <input type="text" id="loginUsername" placeholder="Enter Full Name Profile Identity" autocomplete="off">
+        <input type="password" id="loginPassword" placeholder="Enter Secret Assigned Passcode">
+        <button class="btn-action" onclick="login()" style="margin-top:10px;">Verify Security Credentials</button>
     </div>
     
     <div id="appDashboard" class="dashboard">
         <div>
+            <div id="adminPane" class="admin-pane">
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="switchAdminTab('candidatesTab', this)">Manage Candidates</button>
+                    <button class="tab-btn" onclick="switchAdminTab('agentsTab', this)">Manage Clerks / Agents</button>
+                </div>
+
+                <div id="candidatesTab" class="pane-section active">
+                    <h3 style="color:#6b21a8; border-bottom-color:#c084fc;"><i class="fas fa-plus-circle"></i> Add New Candidate</h3>
+                    <div class="form-group">
+                        <label>Candidate Full Name</label>
+                        <input type="text" id="newCandName" placeholder="e.g. MUGISHA JOHN">
+                    </div>
+                    <div class="form-group">
+                        <label>Office Portfolio</label>
+                        <select id="newCandPost"></select>
+                    </div>
+                    <button class="btn-action" style="background-color:#9333ea;" onclick="addNewCandidate()">Register Candidate</button>
+                </div>
+
+                <div id="agentsTab" class="pane-section">
+                    <h3 style="color:#6b21a8; border-bottom-color:#c084fc;"><i class="fas fa-user-plus"></i> Add System Clerk Agent</h3>
+                    <div class="form-group">
+                        <label>Agent / Clerk Registered Name</label>
+                        <input type="text" id="newAgentName" placeholder="e.g. MR. KATO GREGORY">
+                    </div>
+                    <div class="form-group">
+                        <label>System Role Access</label>
+                        <select id="newAgentRole">
+                            <option value="clerk">CLERK (Tally Entry Only)</option>
+                            <option value="admin">ADMIN (Full Access Controls)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Assign Secret Passcode Key</label>
+                        <input type="text" id="newAgentPin" placeholder="e.g. 5566 or secure string">
+                    </div>
+                    <button class="btn-action" style="background-color:#9333ea; margin-bottom: 15px;" onclick="addNewAgent()">Register Agent Account</button>
+
+                    <label>Active Agents List</label>
+                    <div class="table-responsive" style="max-height: 200px; background: white;">
+                        <table style="font-size: 11px;">
+                            <thead>
+                                <tr>
+                                    <th>Name Identity</th>
+                                    <th>Role</th>
+                                    <th>Passcode</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminAgentsListBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <h3>Enter Station Tally</h3>
                 <div class="form-group">
@@ -196,6 +260,14 @@
         <div>
             <div class="card">
                 <h3>Live Standings Leaderboard</h3>
+                
+                <div class="search-engine">
+                    <input type="text" id="searchBar" placeholder="🔍 Search candidate name..." oninput="filterLeaderboard()">
+                    <select id="filterPost" onchange="filterLeaderboard()">
+                        <option value="">All Portfolios</option>
+                    </select>
+                </div>
+
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -206,7 +278,7 @@
                                 <th>Valid</th>
                                 <th>Invalid</th>
                                 <th>Total Tally</th>
-                                <th id="adminHeader" style="display:none;">Action</th>
+                                <th class="admin-action-col" style="display:none;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="overallStandingsBody"></tbody>
@@ -217,7 +289,7 @@
     </div>
     <div class="print-footer">
         FINAL STANDINGS LEADERBOARD REPORT — TOTAL EXPECTED REGISTERED VOTERS ACROSS THE 3 INVOLVED CENTERS: 680<br>
-        <span style="font-size: 11px; font-weight: normal; margin-top: 5px; display:block;">Report Compiled and Generated Authentically via NHS System Portal. Created by Kamya Oscar.</span>
+        <span style="font-size: 11px; font-weight: normal; margin-top: 5px; display:block;">Report Compiled and Generated Authentically via NHS System Portal.</span>
     </div>
 </div>
 
@@ -227,16 +299,20 @@
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let liveRefreshInterval = null;
+    let dynamicCandidates = [];
+    let systemUsers = {};
+    let cachedTalleyRecords = [];
 
-    const systemUsers = {
-        "alvink123": "Mr. ALVIN. K.",
-        "mkj123": "MR. MUHEREZA KENNETH JOEL",
-        "gk123": "MDM. KIRABIRA GLENNY",
-        "oscar123": "KAMYA OSCAR (Admin)",
-        "ronnie123": "HON. SSEMAGANDA RONALD (Admin)",
-        "njuki123": "MR. NJUKI JOSEPH MUSAAZI (Admin)",
-        "richard123": "MR. SEMIGGA RICHARD (Admin)",
-        "admin123": "MDM. MUYINDA SARAH (Admin)"
+    // The hardcoded preset user credentials dictionary
+    const initialPresetUsers = {
+        "MR. ALVIN. K.": { role: "clerk", pin: "4422" },
+        "MR. MUHEREZA KENNETH JOEL": { role: "clerk", pin: "5511" },
+        "MDM. KIRABIRA GLENNY": { role: "clerk", pin: "9988" },
+        "KAMYA OSCAR": { role: "admin", pin: "1122" },
+        "HON. SSEMAGANDA RONALD": { role: "admin", pin: "2233" },
+        "MR. NJUKI JOSEPH MUSAAZI": { role: "admin", pin: "3344" },
+        "MR. SEMIGGA RICHARD": { role: "admin", pin: "5566" },
+        "MDM. MUYINDA SARAH": { role: "admin", pin: "7788" }
     };
     
     const postHierarchy = [
@@ -283,57 +359,96 @@
         { id: "p31", name: "NANKINDU JALIA", post: "DORM CAPT. GIRLS O'LEVEL" }, { id: "p32", name: "NAKAYONDO SHARIMAH TWAHA", post: "DORM CAPT. GIRLS O'LEVEL" }
     ];    
 
+    window.onload = function() {
+        initializePortfolioSelectors();
+        loadCandidateState();
+        loadAgentState();
+        checkSession();
+    };
+
+    function initializePortfolioSelectors() {
+        const filterDropdown = document.getElementById("filterPost");
+        const adminPaneDropdown = document.getElementById("newCandPost");
+        postHierarchy.forEach(post => {
+            filterDropdown.innerHTML += `<option value="${post}">${post}</option>`;
+            adminPaneDropdown.innerHTML += `<option value="${post}">${post}</option>`;
+        });
+    }
+
+    function loadCandidateState() {
+        const saved = localStorage.getItem("nhs_dynamic_candidates");
+        if (saved) {
+            dynamicCandidates = JSON.parse(saved);
+        } else {
+            dynamicCandidates = [...presetCandidates];
+            localStorage.setItem("nhs_dynamic_candidates", JSON.stringify(dynamicCandidates));
+        }
+    }
+
+    function loadAgentState() {
+        const saved = localStorage.getItem("nhs_system_users");
+        if (saved) {
+            systemUsers = JSON.parse(saved);
+        } else {
+            systemUsers = {...initialPresetUsers};
+            localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
+        }
+    }
+
     function checkSession() {
-        const cachedUser = localStorage.getItem("nhs_voter_code");
-        if (cachedUser && systemUsers[cachedUser]) {
-            document.getElementById("loginUsername").value = cachedUser;
-            login();
+        const cachedUserName = localStorage.getItem("nhs_session_username");
+        if (cachedUserName && systemUsers[cachedUserName]) {
+            executeDashboardBridge(cachedUserName);
         }
     }
 
     function login() {
-        const code = document.getElementById("loginUsername").value;
-        if (!code) return;
-        if (systemUsers[code]) {
-            localStorage.setItem("nhs_voter_code", code);
-            const currentUser = systemUsers[code];
-            document.getElementById("authSection").style.display = "none";
-            document.getElementById("appDashboard").style.display = "grid";
-            document.getElementById("quickStats").style.display = "grid";
-            document.getElementById("logoutBtn").style.display = "block";
-            document.getElementById("printBtn").style.display = "block";
-                        
-            const userTag = document.getElementById("userTag");
-            userTag.style.display = "inline-block";
-            userTag.innerText = `${currentUser}`;                        
-            
-            const isAdmin = code.includes("admin") || ["oscar123", "ronnie123", "njuki123", "richard123"].includes(code);
-            document.getElementById("adminHeader").style.display = isAdmin ? "table-cell" : "none";
-            
-            populateDropdown(presetCandidates);
-            fetchData();
+        const rawName = document.getElementById("loginUsername").value.trim().toUpperCase();
+        const pinValue = document.getElementById("loginPassword").value.trim();
 
-            if(!liveRefreshInterval) {
-                liveRefreshInterval = setInterval(fetchData, 30000); // Poll database every 30 seconds
-            }
+        if (!rawName) return alert("Please type your assigned name identity profile.");
+        if (!systemUsers[rawName]) return alert("Error: Account name profile identity not found.");
+        if (systemUsers[rawName].pin !== pinValue) return alert("Error: Security passcode key incorrect.");
+
+        localStorage.setItem("nhs_session_username", rawName);
+        executeDashboardBridge(rawName);
+    }
+
+    function executeDashboardBridge(userName) {
+        const userObj = systemUsers[userName];
+        document.getElementById("authSection").style.display = "none";
+        document.getElementById("appDashboard").style.display = "grid";
+        document.getElementById("quickStats").style.display = "grid";
+        document.getElementById("logoutBtn").style.display = "block";
+        document.getElementById("printBtn").style.display = "block";
+                    
+        const userTag = document.getElementById("userTag");
+        userTag.style.display = "inline-block";
+        userTag.innerHTML = `<i class="fas fa-user-shield"></i> ${userName} (${userObj.role.toUpperCase()})`;
+        
+        if (userObj.role === "admin") {
+            document.getElementById("adminToggleBtn").style.display = "inline-flex";
+            document.querySelectorAll(".admin-action-col").forEach(col => col.style.display = "table-cell");
+            renderAgentsList();
+        }
+        
+        populateDropdown(dynamicCandidates);
+        fetchData();
+
+        if(!liveRefreshInterval) {
+            liveRefreshInterval = setInterval(fetchData, 15000); 
         }
     }    
     
     function logout() {
-        localStorage.removeItem("nhs_voter_code");
+        localStorage.removeItem("nhs_session_username");
         if(liveRefreshInterval) { clearInterval(liveRefreshInterval); liveRefreshInterval = null; }
-        document.getElementById("authSection").style.display = "block";
-        document.getElementById("appDashboard").style.display = "none";
-        document.getElementById("quickStats").style.display = "none";
-        document.getElementById("logoutBtn").style.display = "none";
-        document.getElementById("printBtn").style.display = "none";
-        document.getElementById("userTag").style.display = "none";
-        document.getElementById("loginUsername").value = "";
+        window.location.reload();
     }    
     
     function populateDropdown(list) {
         const select = document.getElementById("candidateSelect");
-        select.innerHTML = '<option value="">-- Click to Choose Candidate --</option>';                
+        select.innerHTML = '<option value="">-- Click to Select Candidate --</option>';                
         let sortedPosts = [...new Set(list.map(item => item.post))].sort((a, b) => postHierarchy.indexOf(a) - postHierarchy.indexOf(b));
 
         sortedPosts.forEach(post => {
@@ -350,32 +465,46 @@
     
     async function fetchData() {
         const { data: records, error } = await _supabase.from('station_tallies').select('*');
-        if (error) { console.error("Error fetching live standings:", error.message); return; }
-        renderLeaderboard(records || []);
+        if (error) { console.error("Error connecting with database:", error.message); return; }
+        cachedTalleyRecords = records || [];
+        filterLeaderboard();
     }
 
-    function renderLeaderboard(records) {
+    function filterLeaderboard() {
+        const searchQuery = document.getElementById("searchBar").value.toUpperCase();
+        const structuralPost = document.getElementById("filterPost").value;
+
+        let filtered = dynamicCandidates.filter(c => {
+            const matchSearch = c.name.toUpperCase().includes(searchQuery);
+            const matchPost = structuralPost === "" || c.post === structuralPost;
+            return matchSearch && matchPost;
+        });
+
+        renderLeaderboard(filtered);
+    }
+
+    function renderLeaderboard(candidatesToDisplay) {
         const tbody = document.getElementById("overallStandingsBody");
-        const currentCode = localStorage.getItem("nhs_voter_code") || "";
+        const currentUser = localStorage.getItem("nhs_session_username") || "";
+        const isAdmin = currentUser && systemUsers[currentUser]?.role === "admin";
         tbody.innerHTML = "";
 
         let totalValid = 0, totalInvalid = 0;
-        let sortedCandidates = [...presetCandidates].sort((a, b) => {
-            if (a.post !== b.post) return postHierarchy.indexOf(a.post) - postHierarchy.indexOf(b.post);
-            return a.name.localeCompare(b.name);
-        });
-
+        
         let portfolioLeaders = {};
-        sortedCandidates.forEach(cand => {
-            const match = records.find(r => r.candidate_id === cand.id);
+        dynamicCandidates.forEach(cand => {
+            const match = cachedTalleyRecords.find(r => r.candidate_id === cand.id);
             const totalScore = match ? (match.votes_a + match.votes_b + match.votes_c) : 0;
             if (!portfolioLeaders[cand.post] || totalScore > portfolioLeaders[cand.post].score) {
                 if (totalScore > 0) portfolioLeaders[cand.post] = { id: cand.id, score: totalScore };
             }
         });
 
-        sortedCandidates.forEach((cand, index) => {
-            const rowData = records.find(r => r.candidate_id === cand.id) || { votes_a: 0, votes_b: 0, votes_c: 0, invalid_votes: 0 };
+        candidatesToDisplay.sort((a, b) => {
+            if (a.post !== b.post) return postHierarchy.indexOf(a.post) - postHierarchy.indexOf(b.post);
+            return a.name.localeCompare(b.name);
+        }).forEach((cand, index) => {
+            const rowData = cachedTalleyRecords.find(r => r.candidate_id === cand.id) || { votes_a: 0, votes_b: 0, votes_c: 0, invalid_votes: 0 };
             const candidateValidSum = rowData.votes_a + rowData.votes_b + rowData.votes_c;
             const candidateGrandTotal = candidateValidSum + rowData.invalid_votes;
 
@@ -383,7 +512,6 @@
             totalInvalid += rowData.invalid_votes;
 
             const isWinner = portfolioLeaders[cand.post] && portfolioLeaders[cand.post].id === cand.id;
-            const isAdmin = currentCode.includes("admin") || ["oscar123", "ronnie123", "njuki123", "richard123"].includes(currentCode);
 
             const row = document.createElement("tr");
             if (isWinner) row.className = "winner-row";
@@ -395,8 +523,9 @@
                 <td style="font-weight:600; color:var(--success);">${candidateValidSum} <span style="font-size:10px; color:#94a3b8; font-weight:normal;">(${rowData.votes_a}/${rowData.votes_b}/${rowData.votes_c})</span></td>
                 <td style="color:#ef4444;">${rowData.invalid_votes}</td>
                 <td style="font-weight:700; color:var(--primary);">${candidateGrandTotal}</td>
-                <td style="display: ${isAdmin ? 'table-cell' : 'none'};">
+                <td class="admin-action-col" style="display: ${isAdmin ? 'table-cell' : 'none'};">
                     <button class="btn-del" onclick="deleteRecord('${cand.id}')">Reset</button>
+                    <button class="btn-purge" onclick="purgeCandidate('${cand.id}')">Delete</button>
                 </td>
             `;
             tbody.appendChild(row);
@@ -405,16 +534,17 @@
         document.getElementById("statTotalVoters").innerText = totalValid + totalInvalid;
         document.getElementById("statValid").innerText = totalValid;
         document.getElementById("statInvalid").innerText = totalInvalid;
+        
+        document.querySelectorAll(".admin-action-col").forEach(col => col.style.display = isAdmin ? "table-cell" : "none");
     }
 
     async function submitResult() {
         const cid = document.getElementById("candidateSelect").value;
         if(!cid) return alert("Please select a candidate first.");
 
-        const currentCode = localStorage.getItem("nhs_voter_code") || "";
-        const currentUser = systemUsers[currentCode] || "Unknown User";
+        const currentUser = localStorage.getItem("nhs_session_username") || "Unknown User";
 
-        const candidate = presetCandidates.find(c => c.id === cid);
+        const candidate = dynamicCandidates.find(c => c.id === cid);
         const vA = Math.max(0, parseInt(document.getElementById("votesA").value) || 0);
         const vB = Math.max(0, parseInt(document.getElementById("votesB").value) || 0);
         const vC = Math.max(0, parseInt(document.getElementById("votesC").value) || 0);
@@ -434,7 +564,7 @@
             }, { onConflict: 'candidate_id' });
 
         if (error) {
-            alert(`Database access error: ${error.message}\nMake sure RLS settings permit edits.`);
+            alert(`Database access error: ${error.message}`);
         } else {
             alert(`Tally for ${candidate.name} saved!`);
             document.getElementById("votesA").value = "0";
@@ -444,6 +574,90 @@
             document.getElementById("candidateSelect").value = "";
             fetchData();
         }
+    }
+
+    function toggleAdminPane() {
+        const pane = document.getElementById("adminPane");
+        pane.style.display = (pane.style.display === "block") ? "none" : "block";
+    }
+
+    function switchAdminTab(tabId, btnElement) {
+        document.querySelectorAll(".pane-section").forEach(sec => sec.classList.remove("active"));
+        document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+        
+        document.getElementById(tabId).classList.add("active");
+        btnElement.classList.add("active");
+    }
+
+    function addNewCandidate() {
+        const nameInput = document.getElementById("newCandName").value.trim().toUpperCase();
+        const postInput = document.getElementById("newCandPost").value;
+
+        if(!nameInput) return alert("Please enter candidate name details.");
+
+        const newId = "cand-" + Date.now();
+        dynamicCandidates.push({ id: newId, name: nameInput, post: postInput });
+        localStorage.setItem("nhs_dynamic_candidates", JSON.stringify(dynamicCandidates));
+
+        alert(`${nameInput} added successfully into registry list.`);
+        document.getElementById("newCandName").value = "";
+        
+        populateDropdown(dynamicCandidates);
+        filterLeaderboard();
+    }
+
+    function addNewAgent() {
+        const name = document.getElementById("newAgentName").value.trim().toUpperCase();
+        const role = document.getElementById("newAgentRole").value;
+        const pin = document.getElementById("newAgentPin").value.trim();
+
+        if (!name || !pin) return alert("Please fulfill both Agent Name and Passcode Key input variables.");
+        if (systemUsers[name]) return alert("An agent under this identity profile name already exists.");
+
+        systemUsers[name] = { role: role, pin: pin };
+        localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
+
+        alert(`Clerk Agent ${name} successfully registered.`);
+        document.getElementById("newAgentName").value = "";
+        document.getElementById("newAgentPin").value = "";
+        renderAgentsList();
+    }
+
+    function renderAgentsList() {
+        const tbody = document.getElementById("adminAgentsListBody");
+        tbody.innerHTML = "";
+        Object.keys(systemUsers).forEach(key => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${key}</strong></td>
+                <td><span class="badge" style="background:#f1f5f9; color:#334155;">${systemUsers[key].role.toUpperCase()}</span></td>
+                <td><code>${systemUsers[key].pin}</code></td>
+                <td><button class="btn-purge" onclick="purgeAgent('${key}')">Purge</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function purgeAgent(key) {
+        const currentUser = localStorage.getItem("nhs_session_username");
+        if (currentUser === key) return alert("Action Rejected: You cannot wipe your own active login profile.");
+        if (!confirm(`Are you sure you want to delete access keys for ${key}?`)) return;
+
+        delete systemUsers[key];
+        localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
+        renderAgentsList();
+    }
+
+    async function purgeCandidate(id) {
+        if(!confirm("Are you sure you want to completely remove this candidate from the registration list?")) return;
+        
+        dynamicCandidates = dynamicCandidates.filter(c => c.id !== id);
+        localStorage.setItem("nhs_dynamic_candidates", JSON.stringify(dynamicCandidates));
+        
+        await _supabase.from('station_tallies').delete().eq('candidate_id', id);
+        
+        populateDropdown(dynamicCandidates);
+        fetchData();
     }
 
     async function deleteRecord(candidateId) {
@@ -460,9 +674,6 @@
             fetchData();
         }
     }
-
-    window.onload = checkSession;
 </script>
 </body>
 </html>
-
