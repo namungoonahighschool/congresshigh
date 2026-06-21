@@ -56,6 +56,7 @@
         label { display: block; font-weight: 700; font-size: 11px; margin-bottom: 6px; color: #475569; text-transform: uppercase; }
         select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; background: white; }
         input[type="text"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
+        input[type="password"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
         input[type="number"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 16px; font-weight: 700; text-align: center; outline: none; }
         
         .search-engine { display: flex; gap: 10px; margin-bottom: 15px; }
@@ -165,9 +166,8 @@
             <img src="SCHOOL BADGE.jpg" alt="NHS Badge" id="loginLogoImg" onerror="this.parentNode.innerText='🏫';">
         </div>
         <h3>System Access Portal</h3>
-        <input type="text" id="loginUsername" placeholder="Enter Full Name Profile Identity" autocomplete="off">
-        <input type="password" id="loginPassword" placeholder="Enter Secret Assigned Passcode">
-        <button class="btn-action" onclick="login()" style="margin-top:10px;">Verify Security Credentials</button>
+        <input type="password" id="loginPassword" placeholder="Enter System Passcode Key" autocomplete="current-password">
+        <button class="btn-action" onclick="login()" style="margin-top:10px;">Verify Security Passcode</button>
     </div>
     
     <div id="appDashboard" class="dashboard">
@@ -303,12 +303,12 @@
     let systemUsers = {};
     let cachedTalleyRecords = [];
 
-    // The hardcoded preset user credentials dictionary
+    // System registry dataset with requested 'oscar123' master key
     const initialPresetUsers = {
+        "KAMYA OSCAR": { role: "admin", pin: "oscar123" },
         "MR. ALVIN. K.": { role: "clerk", pin: "4422" },
         "MR. MUHEREZA KENNETH JOEL": { role: "clerk", pin: "5511" },
         "MDM. KIRABIRA GLENNY": { role: "clerk", pin: "9988" },
-        "KAMYA OSCAR": { role: "admin", pin: "1122" },
         "HON. SSEMAGANDA RONALD": { role: "admin", pin: "2233" },
         "MR. NJUKI JOSEPH MUSAAZI": { role: "admin", pin: "3344" },
         "MR. SEMIGGA RICHARD": { role: "admin", pin: "5566" },
@@ -403,15 +403,24 @@
     }
 
     function login() {
-        const rawName = document.getElementById("loginUsername").value.trim().toUpperCase();
         const pinValue = document.getElementById("loginPassword").value.trim();
+        if (!pinValue) return alert("Please enter your secret system passcode.");
 
-        if (!rawName) return alert("Please type your assigned name identity profile.");
-        if (!systemUsers[rawName]) return alert("Error: Account name profile identity not found.");
-        if (systemUsers[rawName].pin !== pinValue) return alert("Error: Security passcode key incorrect.");
+        // Scan dataset for matching passcode key
+        let identifiedUser = null;
+        for (const [username, details] of Object.entries(systemUsers)) {
+            if (details.pin === pinValue) {
+                identifiedUser = username;
+                break;
+            }
+        }
 
-        localStorage.setItem("nhs_session_username", rawName);
-        executeDashboardBridge(rawName);
+        if (!identifiedUser) {
+            return alert("Security Access Denied: Invalid configuration passcode.");
+        }
+
+        localStorage.setItem("nhs_session_username", identifiedUser);
+        executeDashboardBridge(identifiedUser);
     }
 
     function executeDashboardBridge(userName) {
@@ -465,7 +474,7 @@
     
     async function fetchData() {
         const { data: records, error } = await _supabase.from('station_tallies').select('*');
-        if (error) { console.error("Error connecting with database:", error.message); return; }
+        if (error) { console.error("Database link error:", error.message); return; }
         cachedTalleyRecords = records || [];
         filterLeaderboard();
     }
@@ -612,7 +621,11 @@
         const pin = document.getElementById("newAgentPin").value.trim();
 
         if (!name || !pin) return alert("Please fulfill both Agent Name and Passcode Key input variables.");
-        if (systemUsers[name]) return alert("An agent under this identity profile name already exists.");
+        
+        // Ensure the passcode isn't a duplicate
+        for (const user of Object.values(systemUsers)) {
+            if (user.pin === pin) return alert("This passcode is already assigned to another agent. Passcodes must be unique.");
+        }
 
         systemUsers[name] = { role: role, pin: pin };
         localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
