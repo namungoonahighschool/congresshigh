@@ -303,7 +303,8 @@
     let systemUsers = {};
     let cachedTalleyRecords = [];
 
-    // System registry dataset with requested 'oscar123' master key
+    const CURRENT_SYS_VERSION = "v3_oscar"; // Changes registry memory verification to flush old caches instantly
+
     const initialPresetUsers = {
         "KAMYA OSCAR": { role: "admin", pin: "oscar123" },
         "MR. ALVIN. K.": { role: "clerk", pin: "4422" },
@@ -386,12 +387,16 @@
     }
 
     function loadAgentState() {
-        const saved = localStorage.getItem("nhs_system_users");
-        if (saved) {
-            systemUsers = JSON.parse(saved);
-        } else {
+        const savedVersion = localStorage.getItem("nhs_sys_ver");
+        const savedUsers = localStorage.getItem("nhs_system_users");
+
+        // Force reset user cache if version mismatch to overwrite scrambled passcodes instantly
+        if (savedVersion !== CURRENT_SYS_VERSION || !savedUsers) {
             systemUsers = {...initialPresetUsers};
             localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
+            localStorage.setItem("nhs_sys_ver", CURRENT_SYS_VERSION);
+        } else {
+            systemUsers = JSON.parse(savedUsers);
         }
     }
 
@@ -406,7 +411,6 @@
         const pinValue = document.getElementById("loginPassword").value.trim();
         if (!pinValue) return alert("Please enter your secret system passcode.");
 
-        // Scan dataset for matching passcode key
         let identifiedUser = null;
         for (const [username, details] of Object.entries(systemUsers)) {
             if (details.pin === pinValue) {
@@ -416,7 +420,7 @@
         }
 
         if (!identifiedUser) {
-            return alert("Security Access Denied: Invalid configuration passcode.");
+            return alert("Error: Security passcode key incorrect.");
         }
 
         localStorage.setItem("nhs_session_username", identifiedUser);
@@ -552,7 +556,6 @@
         if(!cid) return alert("Please select a candidate first.");
 
         const currentUser = localStorage.getItem("nhs_session_username") || "Unknown User";
-
         const candidate = dynamicCandidates.find(c => c.id === cid);
         const vA = Math.max(0, parseInt(document.getElementById("votesA").value) || 0);
         const vB = Math.max(0, parseInt(document.getElementById("votesB").value) || 0);
@@ -622,7 +625,6 @@
 
         if (!name || !pin) return alert("Please fulfill both Agent Name and Passcode Key input variables.");
         
-        // Ensure the passcode isn't a duplicate
         for (const user of Object.values(systemUsers)) {
             if (user.pin === pin) return alert("This passcode is already assigned to another agent. Passcodes must be unique.");
         }
@@ -690,3 +692,4 @@
 </script>
 </body>
 </html>
+
