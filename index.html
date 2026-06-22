@@ -124,11 +124,12 @@
     <header class="master-header">
         <div class="header-left">
             <div class="school-logo">
-                <img src="NHS Badges.png alt="NHS Badge" id="headerLogoImg" onerror="this.parentNode.innerText='NHS LOGO';">
+                <img src="CONGRESS BADGE.jpeg" alt="CHS Badge" id="headerLogoImg" onerror="this.parentNode.innerText='NHS LOGO';">
             </div>
             <div class="header-text">
-                <h1>Namungoona High School</h1>
+                <h1>Congress High School</h1>
                 <p>Electoral Committee Portal</p>
+                <p><i>"Atya Omusana"</i></p>
                 <div class="header-contact">
                     P.O Box 26935 Kampala | Tel: +256 700 627 960 / +256 788 772 660                
                 </div>
@@ -163,7 +164,7 @@
     
     <div id="authSection" class="auth-card">
         <div class="login-logo">
-            <img src="SCHOOL BADGE.jpg" alt="NHS Badge" id="loginLogoImg" onerror="this.parentNode.innerText='🏫';">
+            <img src="CONGRESS BADGE.jpeg" alt="NHS Badge" id="loginLogoImg" onerror="this.parentNode.innerText='🏫';">
         </div>
         <h3>System Access Portal</h3>
         <input type="password" id="loginPassword" placeholder="Enter System Passcode Key" autocomplete="current-password">
@@ -507,83 +508,117 @@
         let portfolioLeaders = {};
         dynamicCandidates.forEach(cand => {
             const match = cachedTalleyRecords.find(r => r.candidate_id === cand.id);
-            const totalScore = match ? (match.votes_a + match.votes_b + match.votes_c) : 0;
-            if (!portfolioLeaders[cand.post] || totalScore > portfolioLeaders[cand.post].score) {
-                if (totalScore > 0) portfolioLeaders[cand.post] = { id: cand.id, score: totalScore };
+            const votesA = match ? parseInt(match.votes_a || 0) : 0;
+            const votesB = match ? parseInt(match.votes_b || 0) : 0;
+            const votesC = match ? parseInt(match.votes_c || 0) : 0;
+            const invalid = match ? parseInt(match.invalid_votes || 0) : 0;
+            const total = votesA + votesB + votesC;
+
+            if (!portfolioLeaders[cand.post] || total > portfolioLeaders[cand.post].score) {
+                portfolioLeaders[cand.post] = { id: cand.id, score: total };
             }
         });
 
+        // Sort candidates based on the defined post hierarchy, then by total score descending
         candidatesToDisplay.sort((a, b) => {
-            if (a.post !== b.post) return postHierarchy.indexOf(a.post) - postHierarchy.indexOf(b.post);
-            return a.name.localeCompare(b.name);
-        }).forEach((cand, index) => {
-            const rowData = cachedTalleyRecords.find(r => r.candidate_id === cand.id) || { votes_a: 0, votes_b: 0, votes_c: 0, invalid_votes: 0 };
-            const candidateValidSum = rowData.votes_a + rowData.votes_b + rowData.votes_c;
-            const candidateGrandTotal = candidateValidSum + rowData.invalid_votes;
+            const hierA = postHierarchy.indexOf(a.post);
+            const hierB = postHierarchy.indexOf(b.post);
+            if (hierA !== hierB) return hierA - hierB;
 
-            totalValid += candidateValidSum;
-            totalInvalid += rowData.invalid_votes;
-
-            const isWinner = portfolioLeaders[cand.post] && portfolioLeaders[cand.post].id === cand.id;
-
-            const row = document.createElement("tr");
-            if (isWinner) row.className = "winner-row";
-
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td class="candidate-name-cell">${cand.name} ${isWinner ? '<span class="badge">👑 Leading</span>' : ''}</td>
-                <td><span class="badge" style="background:#f1f5f9; color:#334155;">${cand.post}</span></td>
-                <td style="font-weight:600; color:var(--success);">${candidateValidSum} <span style="font-size:10px; color:#94a3b8; font-weight:normal;">(${rowData.votes_a}/${rowData.votes_b}/${rowData.votes_c})</span></td>
-                <td style="color:#ef4444;">${rowData.invalid_votes}</td>
-                <td style="font-weight:700; color:var(--primary);">${candidateGrandTotal}</td>
-                <td class="admin-action-col" style="display: ${isAdmin ? 'table-cell' : 'none'};">
-                    <button class="btn-del" onclick="deleteRecord('${cand.id}')">Reset</button>
-                    <button class="btn-purge" onclick="purgeCandidate('${cand.id}')">Delete</button>
-                </td>
-            `;
-            tbody.appendChild(row);
+            const scoreA = getCandidateTotalScore(a.id);
+            const scoreB = getCandidateTotalScore(b.id);
+            return scoreB - scoreA;
         });
 
+        candidatesToDisplay.forEach((cand, index) => {
+            const match = cachedTalleyRecords.find(r => r.candidate_id === cand.id);
+            const votesA = match ? parseInt(match.votes_a || 0) : 0;
+            const votesB = match ? parseInt(match.votes_b || 0) : 0;
+            const votesC = match ? parseInt(match.votes_c || 0) : 0;
+            const invalid = match ? parseInt(match.invalid_votes || 0) : 0;
+            const total = votesA + votesB + votesC;
+
+            totalValid += total;
+            totalInvalid += invalid;
+
+            const isWinner = portfolioLeaders[cand.post] && portfolioLeaders[cand.post].id === cand.id && total > 0;
+            const rowClass = isWinner ? 'class="winner-row"' : '';
+
+            let actionCell = '';
+            if (isAdmin) {
+                actionCell = `<td class="admin-action-col"><button class="btn-del" onclick="purgeTally('${cand.id}')">Reset Tally</button></td>`;
+            }
+
+            tbody.innerHTML += `
+                <tr ${rowClass}>
+                    <td>${index + 1}</td>
+                    <td class="candidate-name-cell">${cand.name} ${isWinner ? '<span class="badge">LEADER</span>' : ''}</td>
+                    <td><span class="badge" style="background:#f1f5f9; color:#334155;">${cand.post}</span></td>
+                    <td>${total}</td>
+                    <td>${invalid}</td>
+                    <td><strong>${total + invalid}</strong></td>
+                    ${actionCell}
+                </tr>
+            `;
+        });
+
+        // Update dashboard counter displays
         document.getElementById("statTotalVoters").innerText = totalValid + totalInvalid;
         document.getElementById("statValid").innerText = totalValid;
         document.getElementById("statInvalid").innerText = totalInvalid;
-        
-        document.querySelectorAll(".admin-action-col").forEach(col => col.style.display = isAdmin ? "table-cell" : "none");
+    }
+
+    function getCandidateTotalScore(candId) {
+        const match = cachedTalleyRecords.find(r => r.candidate_id === candId);
+        if (!match) return 0;
+        return parseInt(match.votes_a || 0) + parseInt(match.votes_b || 0) + parseInt(match.votes_c || 0);
     }
 
     async function submitResult() {
-        const cid = document.getElementById("candidateSelect").value;
-        if(!cid) return alert("Please select a candidate first.");
+        const candId = document.getElementById("candidateSelect").value;
+        if (!candId) return alert("Please pick a candidate target first.");
 
-        const currentUser = localStorage.getItem("nhs_session_username") || "Unknown User";
-        const candidate = dynamicCandidates.find(c => c.id === cid);
-        const vA = Math.max(0, parseInt(document.getElementById("votesA").value) || 0);
-        const vB = Math.max(0, parseInt(document.getElementById("votesB").value) || 0);
-        const vC = Math.max(0, parseInt(document.getElementById("votesC").value) || 0);
-        const inv = Math.max(0, parseInt(document.getElementById("invalidvoteCount").value) || 0);
+        const vA = parseInt(document.getElementById("votesA").value) || 0;
+        const vB = parseInt(document.getElementById("votesB").value) || 0;
+        const vC = parseInt(document.getElementById("votesC").value) || 0;
+        const inv = parseInt(document.getElementById("invalidvoteCount").value) || 0;
 
+        // Upsert row structure into Supabase station_tallies table
         const { error } = await _supabase
             .from('station_tallies')
-            .upsert({
-                candidate_id: candidate.id,
-                candidate_name: candidate.name,
-                post_portfolio: candidate.post,
-                votes_a: vA,
-                votes_b: vB,
-                votes_c: vC,
-                invalid_votes: inv,
-                recorded_by: currentUser
+            .upsert({ 
+                candidate_id: candId, 
+                votes_a: vA, 
+                votes_b: vB, 
+                votes_c: vC, 
+                invalid_votes: inv 
             }, { onConflict: 'candidate_id' });
 
         if (error) {
-            alert(`Database access error: ${error.message}`);
+            alert("Error writing tally configuration data: " + error.message);
         } else {
-            alert(`Tally for ${candidate.name} saved!`);
-            document.getElementById("votesA").value = "0";
-            document.getElementById("votesB").value = "0";
-            document.getElementById("votesC").value = "0";
-            document.getElementById("invalidvoteCount").value = "0";
+            alert("Station tallies recorded successfully!");
+            // Reset entry fields
+            document.getElementById("votesA").value = 0;
+            document.getElementById("votesB").value = 0;
+            document.getElementById("votesC").value = 0;
+            document.getElementById("invalidvoteCount").value = 0;
             document.getElementById("candidateSelect").value = "";
+            fetchData();
+        }
+    }
+
+    async function purgeTally(candId) {
+        if (!confirm("Are you sure you want to clear out tally entries for this specific candidate?")) return;
+        
+        const { error } = await _supabase
+            .from('station_tallies')
+            .delete()
+            .eq('candidate_id', candId);
+
+        if (error) {
+            alert("Execution Error: " + error.message);
+        } else {
             fetchData();
         }
     }
@@ -602,18 +637,16 @@
     }
 
     function addNewCandidate() {
-        const nameInput = document.getElementById("newCandName").value.trim().toUpperCase();
-        const postInput = document.getElementById("newCandPost").value;
+        const name = document.getElementById("newCandName").value.trim().toUpperCase();
+        const post = document.getElementById("newCandPost").value;
+        if (!name) return alert("Provide a valid profile name identifier.");
 
-        if(!nameInput) return alert("Please enter candidate name details.");
-
-        const newId = "cand-" + Date.now();
-        dynamicCandidates.push({ id: newId, name: nameInput, post: postInput });
+        const newId = "dyn_" + Date.now();
+        dynamicCandidates.push({ id: newId, name: name, post: post });
         localStorage.setItem("nhs_dynamic_candidates", JSON.stringify(dynamicCandidates));
-
-        alert(`${nameInput} added successfully into registry list.`);
-        document.getElementById("newCandName").value = "";
         
+        alert("Candidate securely appended onto registry list.");
+        document.getElementById("newCandName").value = "";
         populateDropdown(dynamicCandidates);
         filterLeaderboard();
     }
@@ -623,73 +656,42 @@
         const role = document.getElementById("newAgentRole").value;
         const pin = document.getElementById("newAgentPin").value.trim();
 
-        if (!name || !pin) return alert("Please fulfill both Agent Name and Passcode Key input variables.");
-        
-        for (const user of Object.values(systemUsers)) {
-            if (user.pin === pin) return alert("This passcode is already assigned to another agent. Passcodes must be unique.");
-        }
+        if (!name || !pin) return alert("Fill out credentials cleanly.");
 
         systemUsers[name] = { role: role, pin: pin };
         localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
-
-        alert(`Clerk Agent ${name} successfully registered.`);
+        
+        alert("Agent successfully logged under access permissions schema.");
         document.getElementById("newAgentName").value = "";
         document.getElementById("newAgentPin").value = "";
         renderAgentsList();
     }
 
     function renderAgentsList() {
-        const tbody = document.getElementById("adminAgentsListBody");
-        tbody.innerHTML = "";
-        Object.keys(systemUsers).forEach(key => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><strong>${key}</strong></td>
-                <td><span class="badge" style="background:#f1f5f9; color:#334155;">${systemUsers[key].role.toUpperCase()}</span></td>
-                <td><code>${systemUsers[key].pin}</code></td>
-                <td><button class="btn-purge" onclick="purgeAgent('${key}')">Purge</button></td>
+        const body = document.getElementById("adminAgentsListBody");
+        body.innerHTML = "";
+        for (const [name, details] of Object.entries(systemUsers)) {
+            body.innerHTML += `
+                <tr>
+                    <td><strong>${name}</strong></td>
+                    <td>${details.role.toUpperCase()}</td>
+                    <td><code>${details.pin}</code></td>
+                    <td>
+                        <button class="btn-purge" onclick="removeAgent('${name}')">Revoke</button>
+                    </td>
+                </tr>
             `;
-            tbody.appendChild(tr);
-        });
+        }
     }
 
-    function purgeAgent(key) {
-        const currentUser = localStorage.getItem("nhs_session_username");
-        if (currentUser === key) return alert("Action Rejected: You cannot wipe your own active login profile.");
-        if (!confirm(`Are you sure you want to delete access keys for ${key}?`)) return;
+    function removeAgent(name) {
+        if (initialPresetUsers[name]) return alert("Core structural operational personnel accounts cannot be erased.");
+        if (!confirm(`Revoke authentication clearance layer for: ${name}?`)) return;
 
-        delete systemUsers[key];
+        delete systemUsers[name];
         localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
         renderAgentsList();
-    }
-
-    async function purgeCandidate(id) {
-        if(!confirm("Are you sure you want to completely remove this candidate from the registration list?")) return;
-        
-        dynamicCandidates = dynamicCandidates.filter(c => c.id !== id);
-        localStorage.setItem("nhs_dynamic_candidates", JSON.stringify(dynamicCandidates));
-        
-        await _supabase.from('station_tallies').delete().eq('candidate_id', id);
-        
-        populateDropdown(dynamicCandidates);
-        fetchData();
-    }
-
-    async function deleteRecord(candidateId) {
-        if (!confirm("Are you sure you want to reset the tally records for this candidate?")) return;
-
-        const { error } = await _supabase
-            .from('station_tallies')
-            .delete()
-            .eq('candidate_id', candidateId);
-
-        if (error) {
-            alert(`Error resetting record: ${error.message}`);
-        } else {
-            fetchData();
-        }
     }
 </script>
 </body>
 </html>
-
