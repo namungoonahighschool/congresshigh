@@ -4,90 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Congress High School - Official Election Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --primary: #004699; --secondary: #ffc107; --dark: #0f172a; --light: #ffffff; --success: #10b981; }
-        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f8fafc; color: var(--dark); padding: 10px; }
-        .container { max-width: 1300px; margin: 0 auto; }
+        :root {
+            --bg-main: #f8fafc;
+            --surface: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --primary: #1e3a8a;
+            --primary-accent: #2563eb;
+            --primary-light: #eff6ff;
+            --secondary: #d97706;
+            --secondary-light: #fef3c7;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --danger: #ef4444;
+            --danger-light: #fef2f2;
+            --border: #e2e8f0;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.03);
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; transition: all 0.2s ease; }
+        body { background-color: var(--bg-main); color: var(--text-dark); padding: 16px; line-height: 1.5; }
+        .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
         
+        /* Navigation Header */
         .master-header {
-            background: linear-gradient(135deg, #002b5c, var(--primary));
-            color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px;
-            border: 2px solid var(--secondary); display: flex; flex-direction: column; gap: 15px; align-items: center; text-align: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: white; padding: 24px; border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg); border-bottom: 4px solid var(--secondary);
+            display: flex; flex-direction: column; gap: 20px; align-items: center; text-align: center;
         }
         @media (min-width: 768px) {
-            .master-header { flex-direction: row; justify-content: space-between; text-align: left; padding: 20px; }
+            .master-header { flex-direction: row; justify-content: space-between; text-align: left; padding: 28px 32px; }
         }
-        .header-left { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .header-left { display: flex; flex-direction: column; align-items: center; gap: 20px; }
         @media (min-width: 576px) { .header-left { flex-direction: row; } }
-        .school-logo { width: 65px; height: 65px; background-color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--secondary); overflow: hidden; flex-shrink: 0; }
+        
+        .school-logo { 
+            width: 80px; height: 80px; background-color: white; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15), var(--shadow-md); overflow: hidden; flex-shrink: 0; 
+        }
         .school-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .header-text h1 { font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .header-text p { font-size: 13px; color: #e2e8f0; }
-        .header-contact { font-size: 11px; color: #cbd5e1; margin-top: 4px; }
         
-        .header-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; width: 100%; }
+        .header-text h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; text-transform: uppercase; margin-bottom: 2px; background: linear-gradient(to right, #ffffff, #e2e8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header-text p { font-size: 14px; color: #94a3b8; font-weight: 500; }
+        .header-contact { font-size: 11px; color: #64748b; margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        @media (min-width: 768px) { .header-contact { justify-content: flex-start; } }
+        .header-contact span { background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px; }
+        
+        .header-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; width: 100%; }
         @media (min-width: 768px) { .header-actions { width: auto; justify-content: flex-end; } }
-        .user-tag { background: rgba(255, 255, 255, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: white; text-align: center; }
-        .btn-logout { background-color: #ef4444; color: white; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .btn-print { background-color: #0284c7; color: white; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .btn-admin { background-color: #8b5cf6; color: white; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
         
-        .quick-stats-bar { display: none; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
-        @media (min-width: 768px) { .quick-stats-bar { grid-template-columns: repeat(4, 1fr); gap: 15px; } }
-        .stat-card { background: white; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .stat-card h4 { font-size: 10px; color: #64748b; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
-        .stat-card p { font-size: 18px; font-weight: 700; color: var(--primary); }
+        .user-tag { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 600; color: white; display: inline-flex; align-items: center; gap: 8px; }
+        .btn { padding: 10px 18px; border: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: var(--shadow-sm); }
+        .btn:active { transform: scale(0.98); }
+        .btn-logout { background-color: var(--danger); color: white; }
+        .btn-logout:hover { background-color: #dc2626; }
+        .btn-print { background-color: var(--primary-accent); color: white; }
+        .btn-print:hover { background-color: #1d4ed8; }
+        .btn-admin { background-color: #7c3aed; color: white; }
+        .btn-admin:hover { background-color: #6d28d9; }
         
-        .auth-card { background: white; padding: 30px 20px; border-radius: 12px; max-width: 450px; margin: 40px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; border: 1px solid #cbd5e1; }
-        .auth-card .login-logo { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary); overflow: hidden; }
-        .auth-card input { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #cbd5e1; border-radius: 6px; font-size: 15px; font-weight: 600; text-align: center; outline: none; }
+        /* Stats Dashboard */
+        .quick-stats-bar { display: none; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        @media (min-width: 992px) { .quick-stats-bar { grid-template-columns: repeat(4, 1fr); } }
+        .stat-card { background: var(--surface); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--border); }
+        .stat-card.expected::before { background: var(--primary-accent); }
+        .stat-card.turnout::before { background: #6366f1; }
+        .stat-card.valid::before { background: var(--success); }
+        .stat-card.invalid::before { background: var(--danger); }
+        .stat-card h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .stat-card p { font-size: 24px; font-weight: 800; color: var(--text-dark); letter-spacing: -0.5px; }
         
-        .dashboard { display: none; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 992px) { .dashboard { grid-template-columns: 1fr 1.75fr; } }
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        @media (min-width: 576px) { .card { padding: 20px; } }
-        h3 { color: var(--primary); margin-bottom: 15px; font-size: 13px; font-weight: 700; border-bottom: 2px solid var(--secondary); padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Authentication Shield Card */
+        .auth-card { background: var(--surface); padding: 40px 32px; border-radius: var(--radius-lg); max-width: 440px; margin: 60px auto; box-shadow: var(--shadow-lg); text-align: center; border: 1px solid var(--border); }
+        .auth-card .login-logo { width: 90px; height: 90px; background: var(--bg-main); border-radius: 50%; margin: 0 auto 24px auto; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05), 0 0 0 1px var(--border); overflow: hidden; }
+        .auth-card .login-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .auth-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 8px; text-transform: none; border: none; padding: 0; }
+        .auth-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+        .auth-card input { width: 100%; padding: 14px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; text-align: center; background: var(--bg-main); outline: none; }
+        .auth-card input:focus { border-color: var(--primary-accent); background: white; box-shadow: 0 0 0 4px var(--primary-light); }
         
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 700; font-size: 11px; margin-bottom: 6px; color: #475569; text-transform: uppercase; }
-        select { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; background: white; }
-        input[type="text"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
-        input[type="password"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 14px; outline: none; }
-        input[type="number"] { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 16px; font-weight: 700; text-align: center; outline: none; }
+        /* Core Layout Architecture */
+        .dashboard { display: none; grid-template-columns: 1fr; gap: 24px; }
+        @media (min-width: 1024px) { .dashboard { grid-template-columns: 1fr 1.5fr; } }
         
-        .search-engine { display: flex; gap: 10px; margin-bottom: 15px; }
-        .search-engine input { flex: 2; }
-        .search-engine select { flex: 1; }
+        .card { background: var(--surface); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: var(--shadow-sm); height: fit-content; }
+        h3 { color: var(--text-dark); margin-bottom: 20px; font-size: 14px; font-weight: 800; border-bottom: 2px solid var(--border); padding-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+        
+        /* Input & Dropdown Configurations */
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: 700; font-size: 11px; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        select, input[type="text"], input[type="password"], input[type="number"] { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; outline: none; background-color: var(--bg-main); color: var(--text-dark); }
+        select:focus, input:focus { border-color: var(--primary-accent); background-color: white; box-shadow: 0 0 0 3px var(--primary-light); }
+        input[type="number"] { font-size: 18px; font-weight: 700; text-align: center; }
+        
+        .search-engine { display: flex; gap: 12px; margin-bottom: 20px; }
+        .search-engine input { flex: 2; background-color: var(--bg-main); }
+        .search-engine select { flex: 1; background-color: var(--bg-main); }
 
-        .admin-pane { display: none; background: #faf5ff; border: 1px solid #e9d5ff; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
-        .admin-tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #e9d5ff; padding-bottom: 10px; }
-        .tab-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #6b21a8; cursor: pointer; opacity: 0.6; padding: 4px 8px; }
-        .tab-btn.active { opacity: 1; border-bottom: 2px solid #9333ea; }
+        /* Configuration Drawer Panel */
+        .admin-pane { display: none; background: #faf5ff; border: 1px solid #e9d5ff; padding: 20px; border-radius: var(--radius-md); margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+        .admin-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #e9d5ff; padding-bottom: 12px; }
+        .tab-btn { background: none; border: none; font-size: 12px; font-weight: 700; color: #6b21a8; cursor: pointer; padding: 6px 12px; border-radius: 6px; }
+        .tab-btn:hover { background: #f3e8ff; }
+        .tab-btn.active { background: #9333ea; color: white; }
         .pane-section { display: none; }
         .pane-section.active { display: block; }
 
-        .centers-grid { display: grid; grid-template-columns: 1fr; gap: 12px; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        @media (min-width: 480px) { .centers-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
-        .center-box { text-align: center; }
-        .center-box h5 { font-size: 11px; color: var(--primary); margin-bottom: 6px; text-transform: uppercase; }
+        /* Hexagonal 6-Center Matrix Card */
+        .centers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; background: var(--bg-main); padding: 16px; border-radius: var(--radius-sm); margin-bottom: 18px; border: 1px solid var(--border); }
+        @media (min-width: 480px) { .centers-grid { grid-template-columns: repeat(3, 1fr); } }
+        .center-box { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 10px; box-shadow: var(--shadow-sm); }
+        .center-box h5 { font-size: 11px; color: var(--primary-accent); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; text-align: center; }
+        .center-box input { padding: 8px; border-radius: 4px; }
         
-        button.btn-action { background-color: var(--primary); color: white; padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 12px; width: 100%; }
-        button.btn-action:hover { background-color: #003370; }
+        button.btn-action { background-color: var(--primary-accent); color: white; padding: 14px; border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 13px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-sm); }
+        button.btn-action:hover { background-color: #1d4ed8; }
         
-        .table-responsive { overflow-x: auto; border-radius: 6px; border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #edf2f7; }
-        th { background-color: #f8fafc; color: #475569; font-weight: 700; font-size: 11px; text-transform: uppercase; white-space: nowrap; }
-        td { white-space: nowrap; }
-        td.candidate-name-cell { white-space: normal; min-width: 140px; font-weight: 600; }
-        tr.winner-row { background-color: #f0f9ff; font-weight: bold; border-left: 4px solid #0284c7; }
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: #e0f2fe; color: #0369a1; display: inline-block; }
-        .btn-del { background-color: #ef4444; color: white; border: none; padding: 4px 8px; font-size: 10px; width: auto; display: inline-block; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 4px; }
-        .btn-purge { background-color: #b91c1c; color: white; border: none; padding: 4px 8px; font-size: 10px; width: auto; display: inline-block; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        /* Modern Data Table */
+        .table-responsive { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        td { white-space: nowrap; color: #334155; font-weight: 500; }
+        td.candidate-name-cell { white-space: normal; min-width: 160px; font-weight: 600; color: var(--text-dark); }
+        tr:last-child td { border-bottom: none; }
+        tr.winner-row { background-color: var(--primary-light); }
+        tr.winner-row td { color: var(--primary); }
+        
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: var(--primary-light); color: var(--primary-accent); display: inline-flex; align-items: center; }
+        .badge.winner { background: var(--success-light); color: var(--success); border: 1px solid rgba(16,185,129,0.15); }
+        .badge.portfolio { background: #f1f5f9; color: #475569; font-weight: 600; }
+        
+        .btn-table-del { background-color: var(--danger-light); color: var(--danger); border: 1px solid rgba(239,68,68,0.1); padding: 6px 10px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-table-del:hover { background-color: var(--danger); color: white; }
+        .btn-purge { background-color: #b91c1c; color: white; border: none; padding: 4px 8px; font-size: 10px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
         .print-footer { display: none; text-align: center; font-weight: bold; margin-top: 40px; font-size: 13px; border-top: 1px solid #000; padding-top: 15px; }
 
         @media print {
@@ -114,7 +177,7 @@
             th { background-color: #f0f0f0 !important; text-transform: uppercase; font-weight: bold; }
             tr.winner-row { background-color: transparent !important; border-left: none !important; }
             .badge { background: none !important; padding: 0 !important; font-size: 11px !important; color: black !important; }
-            .btn-del, .btn-purge { display: none !important; }
+            .btn-table-del, .btn-purge { display: none !important; }
             .print-footer { display: block !important; }
         }
     </style>
@@ -124,51 +187,52 @@
     <header class="master-header">
         <div class="header-left">
             <div class="school-logo">
-                <img src="CONGRESS BADGE.jpeg" alt="CHS Badge" id="headerLogoImg" onerror="this.parentNode.innerText='NHS LOGO';">
+                <img src="CONGRESS BADGE.jpeg" alt="NHS Badge" id="headerLogoImg" onerror="this.parentNode.innerText='NHS';">
             </div>
             <div class="header-text">
-                <h1>Congress High School</h1>
+                <h1>Namungoona High School</h1>
                 <p>Electoral Committee Portal</p>
-                <p><i>"Atya Omusana"</i></p>
                 <div class="header-contact">
-                    P.O Box 26935 Kampala | Tel: +256 700 627 960 / +256 788 772 660                
+                    <span><i class="fas fa-box-archive"></i> P.O Box 26935 Kampala</span>
+                    <span><i class="fas fa-phone"></i> +256 700 627 960 / +256 788 772 660</span>
                 </div>
             </div>
         </div>
         <div class="header-actions">
             <span id="userTag" class="user-tag" style="display: none;"></span>
-            <button id="adminToggleBtn" class="btn-admin" style="display:none;" onclick="toggleAdminPane()"><i class="fas fa-user-cog"></i> System Registry Settings</button>
-            <button id="printBtn" class="btn-print" onclick="window.print()" style="display:none;">🖨️ Export Standings</button>
-            <button id="logoutBtn" class="btn-logout" onclick="logout()" style="display:none;">Logout</button>
+            <button id="adminToggleBtn" class="btn btn-admin" style="display:none;" onclick="toggleAdminPane()"><i class="fas fa-sliders"></i> Registry Settings</button>
+            <button id="printBtn" class="btn btn-print" onclick="window.print()" style="display:none;"><i class="fas fa-print"></i> Export Standings</button>
+            <button id="logoutBtn" class="btn btn-logout" onclick="logout()" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </header>
     
     <div id="quickStats" class="quick-stats-bar">
-        <div class="stat-card">
+        <div class="stat-card expected">
             <h4>Expected Turnout</h4>
-            <p>680</p>
+            <p>1,360</p>
         </div>
-        <div class="stat-card">
+        <div class="stat-card turnout">
             <h4>Current Turnout</h4>
             <p id="statTotalVoters">0</p>
         </div>
-        <div class="stat-card">
+        <div class="stat-card valid">
             <h4>Valid Votes</h4>
-            <p id="statValid" style="color: var(--success);">0</p>
+            <p id="statValid">0</p>
         </div>
-        <div class="stat-card">
+        <div class="stat-card invalid">
             <h4>Invalid Votes</h4>
-            <p id="statInvalid" style="color: #ef4444;">0</p>
+            <p id="statInvalid">0</p>
         </div>
     </div>
     
     <div id="authSection" class="auth-card">
         <div class="login-logo">
-            <img src="CONGRESS BADGE.jpeg" alt="CHS Badge" id="loginLogoImg" onerror="this.parentNode.innerText='🏫';">
+            <img src="CONGRESS BADGE.jpeg" alt="NHS Badge" id="loginLogoImg" onerror="this.parentNode.innerText='🏫';">
         </div>
         <h3>System Access Portal</h3>
-        <input type="password" id="loginPassword" placeholder="Enter System Passcode Key" autocomplete="current-password">
-        <button class="btn-action" onclick="login()" style="margin-top:10px;">Verify Security Passcode</button>
+        <p>Please log in using your assigned administrative passcode.</p>
+        <input type="password" id="loginPassword" placeholder="Enter Security Passcode Key" autocomplete="current-password">
+        <button class="btn-action" onclick="login()"><i class="fas fa-shield-halved"></i> Verify Authentication</button>
     </div>
     
     <div id="appDashboard" class="dashboard">
@@ -180,7 +244,7 @@
                 </div>
 
                 <div id="candidatesTab" class="pane-section active">
-                    <h3 style="color:#6b21a8; border-bottom-color:#c084fc;"><i class="fas fa-plus-circle"></i> Add New Candidate</h3>
+                    <h3><i class="fas fa-plus-circle" style="color:#9333ea;"></i> Add New Candidate</h3>
                     <div class="form-group">
                         <label>Candidate Full Name</label>
                         <input type="text" id="newCandName" placeholder="e.g. MUGISHA JOHN">
@@ -193,7 +257,7 @@
                 </div>
 
                 <div id="agentsTab" class="pane-section">
-                    <h3 style="color:#6b21a8; border-bottom-color:#c084fc;"><i class="fas fa-user-plus"></i> Add System Clerk Agent</h3>
+                    <h3><i class="fas fa-user-plus" style="color:#9333ea;"></i> Add System Clerk Agent</h3>
                     <div class="form-group">
                         <label>Agent / Clerk Registered Name</label>
                         <input type="text" id="newAgentName" placeholder="e.g. MR. KATO GREGORY">
@@ -229,14 +293,14 @@
             </div>
 
             <div class="card">
-                <h3>Enter Station Tally</h3>
+                <h3><i class="fas fa-square-poll-horizontal" style="color:var(--primary-accent)"></i> Enter Station Tally</h3>
                 <div class="form-group">
                     <label>Select Target Candidate</label>
                     <select id="candidateSelect" required>
                         <option value="">-- Click to Select Candidate --</option>
                     </select>
                 </div>
-                <label style="color: var(--primary);">Valid Votes per Station</label>
+                <label style="color: var(--primary-accent);">Valid Votes per Polling Center</label>
                 <div class="centers-grid">
                     <div class="center-box">
                         <h5>Center A</h5>
@@ -250,17 +314,29 @@
                         <h5>Center C</h5>
                         <input type="number" id="votesC" min="0" value="0" oninput="this.value=Math.abs(this.value)">
                     </div>
+                    <div class="center-box">
+                        <h5>Center D</h5>
+                        <input type="number" id="votesD" min="0" value="0" oninput="this.value=Math.abs(this.value)">
+                    </div>
+                    <div class="center-box">
+                        <h5>Center E</h5>
+                        <input type="number" id="votesE" min="0" value="0" oninput="this.value=Math.abs(this.value)">
+                    </div>
+                    <div class="center-box">
+                        <h5>Center F</h5>
+                        <input type="number" id="votesF" min="0" value="0" oninput="this.value=Math.abs(this.value)">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label style="color: #ef4444;">Invalid Votes (Combined)</label>
+                    <label style="color: var(--danger);">Invalid Votes (Combined Summary)</label>
                     <input type="number" id="invalidvoteCount" min="0" value="0" oninput="this.value=Math.abs(this.value)">
                 </div>
-                <button class="btn-action" onclick="submitResult()" style="background-color: var(--success);">Save Tally</button>
+                <button class="btn-action" onclick="submitResult()" style="background-color: var(--success);"><i class="fas fa-floppy-disk"></i> Commit Live Entry</button>
             </div>
         </div>
         <div>
             <div class="card">
-                <h3>Live Standings Leaderboard</h3>
+                <h3><i class="fas fa-chart-line" style="color:var(--primary-accent)"></i> Live Leaderboard Matrix</h3>
                 
                 <div class="search-engine">
                     <input type="text" id="searchBar" placeholder="🔍 Search candidate name..." oninput="filterLeaderboard()">
@@ -275,7 +351,7 @@
                             <tr>
                                 <th style="width: 40px;">No.</th>
                                 <th>Candidate Name</th>
-                                <th>Post / Office Portfolio</th>
+                                <th>Post / Portfolio</th>
                                 <th>Valid</th>
                                 <th>Invalid</th>
                                 <th>Total Tally</th>
@@ -289,14 +365,15 @@
         </div>
     </div>
     <div class="print-footer">
-        FINAL STANDINGS LEADERBOARD REPORT — TOTAL EXPECTED REGISTERED VOTERS ACROSS THE 3 INVOLVED CENTERS: 680<br>
+        FINAL STANDINGS LEADERBOARD REPORT — TOTAL EXPECTED REGISTERED VOTERS ACROSS 6 INVOLVED CENTERS: 1360<br>
         <span style="font-size: 11px; font-weight: normal; margin-top: 5px; display:block;">Report Compiled and Generated Authentically via NHS System Portal.</span>
     </div>
 </div>
 
 <script>
-    const SUPABASE_URL = "https://utahmfbyhtdydqrmqlzf.supabase.co"; 
-    const SUPABASE_ANON_KEY = "sb_publishable_eeoNnx23E7p0JNfZv2BSmQ_MtsQABa_";
+    // Configured Project Credentials
+    const SUPABASE_URL = "https://lhjcgoiikqrpnjxaisdt.supabase.co"; 
+    const SUPABASE_ANON_KEY = "sb_publishable_YwKjj9y27PmYc7yrV4jtrA_N5AwqzwI";
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let liveRefreshInterval = null;
@@ -304,7 +381,7 @@
     let systemUsers = {};
     let cachedTalleyRecords = [];
 
-    const CURRENT_SYS_VERSION = "v3_oscar"; // Changes registry memory verification to flush old caches instantly
+    const CURRENT_SYS_VERSION = "v4_six_centers_production"; 
 
     const initialPresetUsers = {
         "KAMYA OSCAR": { role: "admin", pin: "oscar123" },
@@ -341,24 +418,10 @@
         { id: "u19", name: "NABUUFU HARRIET", post: "SECRETARY STUDENTS AFFAIRS" }, { id: "u20", name: "NAKALANZI NASHIBAH", post: "SECRETARY STUDENTS AFFAIRS" },
         { id: "u21", name: "KASSITA SHARITAH", post: "SECRETARY INTERNAL AFFAIRS" }, { id: "u22", name: "KOMUJUNI LETICIA", post: "SECRETARY INTERNAL AFFAIRS" },
         { id: "u23", name: "NTEGE PETER", post: "SECRETARY INTERNAL AFFAIRS" }, { id: "u24", name: "MUSIIME LINDAH", post: "LANGUAGE PREFECT" },
-        { id: "u25", name: "LUBEGA EDWARD", post: "LANGUAGE PREFECT" }, { id: "u26", name: "ALI MAXWELL", post: "LANGUAGE PREFECT" },
-        { id: "u27", name: "NAKABIITO ESTHER EMILY", post: "INFORMATION AND PUBLICITY" }, { id: "u28", name: "KALULE KENNETH", post: "INFORMATION AND PUBLICITY" },
-        { id: "p1", name: "KITAGANA AKSAM", post: "HEADBOY A'LEVEL" }, { id: "p2", name: "ALINAFE STEVEN", post: "HEADBOY A'LEVEL" },
-        { id: "p3", name: "NANKANJA WINFRED", post: "HEADGIRL A'LEVEL" }, { id: "p4", name: "NAMAZZI MARIAM", post: "HEADGIRL A'LEVEL" },
-        { id: "p5", name: "NAMUDDU SHEEBAH", post: "HEADGIRL A'LEVEL" }, { id: "p6", name: "SSENFUMA MARVIN", post: "HEADBOY O'LEVEL" },
-        { id: "p7", name: "KYAGULANYI PIUS", post: "HEADBOY O'LEVEL" }, { id: "p8", name: "NABAKOOZA STELLA", post: "HEADGIRL O'LEVEL" },
-        { id: "p9", name: "NABAGEREKA PRETTY PATRICIA", post: "HEADGIRL O'LEVEL" }, { id: "p10", name: "MAYANJA SHAFIQUE", post: "ACADEMIC PREFECT" },
-        { id: "p11", name: "NANTONGO BETTY MICHELLE", post: "ACADEMIC PREFECT" }, { id: "p12", name: "TUGUME GRACIOUS MARTHA", post: "HEADMONITOR" },
-        { id: "p13", name: "NAKAJJA SHANITAH", post: "HEADMONITOR" }, { id: "p14", name: "NAMUBIRU PRISCA", post: "HEADMONITOR" },
-        { id: "p15", name: "GYAGENDA PHOEBE", post: "ENTERTAINMENT PREFECT" }, { id: "p16", name: "KASIRYE SHAFIK LEBRON", post: "ENTERTAINMENT PREFECT" },
-        { id: "p17", name: "NASEJJE HAIRAH", post: "ENTERTAINMENT PREFECT" }, { id: "p18", name: "KEI EMMANUEL JAMES", post: "HEALTH MINISTER BOYS" },
-        { id: "p19", name: "ISHAKA TREVIS", post: "HEALTH MINISTER BOYS" }, { id: "p20", name: "SSEBALAMU JORAM", post: "HEALTH MINISTER BOYS" },
-        { id: "p21", name: "NAMUKAYA JOVIA", post: "HEALTH MINISTER GIRLS" }, { id: "p22", name: "NANNUNGI BENITAH", post: "HEALTH MINISTER GIRLS" },
-        { id: "p23", name: "NAGGAYI LOURYN BEATRICE", post: "HEALTH MINISTER GIRLS" }, { id: "p24", name: "NAMUBIRU RAHMAH", post: "LITURGY MUSLIMS" },
-        { id: "p25", name: "MULIIKA SHARIF", post: "LITURGY MUSLIMS" }, { id: "p26", name: "NANTEZA MARIA VANNEL", post: "LITURGY CHRISTIANS" },
-        { id: "p27", name: "MULLO MELLISA ROWEN", post: "LITURGY CHRISTIANS" }, { id: "p28", name: "KALYESUBULA LINCOS", post: "HEAD SECURITY" },
-        { id: "p29", name: "WASSWA MUNIB", post: "HEAD SECURITY" }, { id: "p30", name: "BBOSA TRINITY", post: "DORM CAPT. GIRLS O'LEVEL" },
-        { id: "p31", name: "NANKINDU JALIA", post: "DORM CAPT. GIRLS O'LEVEL" }, { id: "p32", name: "NAKAYONDO SHARIMAH TWAHA", post: "DORM CAPT. GIRLS O'LEVEL" }
+        { id: "p26", name: "NANTEZA MARIA VANNEL", post: "LITURGY CHRISTIANS" }, { id: "p27", name: "MULLO MELLISA ROWEN", post: "LITURGY CHRISTIANS" }, 
+        { id: "p28", name: "KALYESUBULA LINCOS", post: "HEAD SECURITY" }, { id: "p29", name: "WASSWA MUNIB", post: "HEAD SECURITY" }, 
+        { id: "p30", name: "BBOSA TRINITY", post: "DORM CAPT. GIRLS O'LEVEL" }, { id: "p31", name: "NANKINDU JALIA", post: "DORM CAPT. GIRLS O'LEVEL" }, 
+        { id: "p32", name: "NAKAYONDO SHARIMAH TWAHA", post: "DORM CAPT. GIRLS O'LEVEL" }
     ];    
 
     window.onload = function() {
@@ -391,7 +454,6 @@
         const savedVersion = localStorage.getItem("nhs_sys_ver");
         const savedUsers = localStorage.getItem("nhs_system_users");
 
-        // Force reset user cache if version mismatch to overwrite scrambled passcodes instantly
         if (savedVersion !== CURRENT_SYS_VERSION || !savedUsers) {
             systemUsers = {...initialPresetUsers};
             localStorage.setItem("nhs_system_users", JSON.stringify(systemUsers));
@@ -450,7 +512,7 @@
         fetchData();
 
         if(!liveRefreshInterval) {
-            liveRefreshInterval = setInterval(fetchData, 15000); 
+            liveRefreshInterval = setInterval(fetchData, 10000); 
         }
     }    
     
@@ -511,15 +573,16 @@
             const votesA = match ? parseInt(match.votes_a || 0) : 0;
             const votesB = match ? parseInt(match.votes_b || 0) : 0;
             const votesC = match ? parseInt(match.votes_c || 0) : 0;
-            const invalid = match ? parseInt(match.invalid_votes || 0) : 0;
-            const total = votesA + votesB + votesC;
+            const votesD = match ? parseInt(match.votes_d || 0) : 0;
+            const votesE = match ? parseInt(match.votes_e || 0) : 0;
+            const votesF = match ? parseInt(match.votes_f || 0) : 0;
+            const total = votesA + votesB + votesC + votesD + votesE + votesF;
 
             if (!portfolioLeaders[cand.post] || total > portfolioLeaders[cand.post].score) {
                 portfolioLeaders[cand.post] = { id: cand.id, score: total };
             }
         });
 
-        // Sort candidates based on the defined post hierarchy, then by total score descending
         candidatesToDisplay.sort((a, b) => {
             const hierA = postHierarchy.indexOf(a.post);
             const hierB = postHierarchy.indexOf(b.post);
@@ -535,8 +598,11 @@
             const votesA = match ? parseInt(match.votes_a || 0) : 0;
             const votesB = match ? parseInt(match.votes_b || 0) : 0;
             const votesC = match ? parseInt(match.votes_c || 0) : 0;
+            const votesD = match ? parseInt(match.votes_d || 0) : 0;
+            const votesE = match ? parseInt(match.votes_e || 0) : 0;
+            const votesF = match ? parseInt(match.votes_f || 0) : 0;
             const invalid = match ? parseInt(match.invalid_votes || 0) : 0;
-            const total = votesA + votesB + votesC;
+            const total = votesA + votesB + votesC + votesD + votesE + votesF;
 
             totalValid += total;
             totalInvalid += invalid;
@@ -546,14 +612,14 @@
 
             let actionCell = '';
             if (isAdmin) {
-                actionCell = `<td class="admin-action-col"><button class="btn-del" onclick="purgeTally('${cand.id}')">Reset Tally</button></td>`;
+                actionCell = `<td class="admin-action-col"><button class="btn-table-del" onclick="purgeTally('${cand.id}')">Reset</button></td>`;
             }
 
             tbody.innerHTML += `
                 <tr ${rowClass}>
                     <td>${index + 1}</td>
-                    <td class="candidate-name-cell">${cand.name} ${isWinner ? '<span class="badge">LEADER</span>' : ''}</td>
-                    <td><span class="badge" style="background:#f1f5f9; color:#334155;">${cand.post}</span></td>
+                    <td class="candidate-name-cell">${cand.name} ${isWinner ? '<span class="badge winner"><i class="fas fa-crown"></i> LEADER</span>' : ''}</td>
+                    <td><span class="badge portfolio">${cand.post}</span></td>
                     <td>${total}</td>
                     <td>${invalid}</td>
                     <td><strong>${total + invalid}</strong></td>
@@ -562,16 +628,15 @@
             `;
         });
 
-        // Update dashboard counter displays
-        document.getElementById("statTotalVoters").innerText = totalValid + totalInvalid;
-        document.getElementById("statValid").innerText = totalValid;
-        document.getElementById("statInvalid").innerText = totalInvalid;
+        document.getElementById("statTotalVoters").innerText = (totalValid + totalInvalid).toLocaleString();
+        document.getElementById("statValid").innerText = totalValid.toLocaleString();
+        document.getElementById("statInvalid").innerText = totalInvalid.toLocaleString();
     }
 
     function getCandidateTotalScore(candId) {
         const match = cachedTalleyRecords.find(r => r.candidate_id === candId);
         if (!match) return 0;
-        return parseInt(match.votes_a || 0) + parseInt(match.votes_b || 0) + parseInt(match.votes_c || 0);
+        return parseInt(match.votes_a || 0) + parseInt(match.votes_b || 0) + parseInt(match.votes_c || 0) + parseInt(match.votes_d || 0) + parseInt(match.votes_e || 0) + parseInt(match.votes_f || 0);
     }
 
     async function submitResult() {
@@ -581,27 +646,34 @@
         const vA = parseInt(document.getElementById("votesA").value) || 0;
         const vB = parseInt(document.getElementById("votesB").value) || 0;
         const vC = parseInt(document.getElementById("votesC").value) || 0;
+        const vD = parseInt(document.getElementById("votesD").value) || 0;
+        const vE = parseInt(document.getElementById("votesE").value) || 0;
+        const vF = parseInt(document.getElementById("votesF").value) || 0;
         const inv = parseInt(document.getElementById("invalidvoteCount").value) || 0;
 
-        // Upsert row structure into Supabase station_tallies table
         const { error } = await _supabase
             .from('station_tallies')
             .upsert({ 
                 candidate_id: candId, 
                 votes_a: vA, 
                 votes_b: vB, 
-                votes_c: vC, 
+                votes_c: vC,
+                votes_d: vD,
+                votes_e: vE,
+                votes_f: vF,
                 invalid_votes: inv 
             }, { onConflict: 'candidate_id' });
 
         if (error) {
-            alert("Error writing tally configuration data: " + error.message);
+            alert("Error writing tally data: " + error.message);
         } else {
             alert("Station tallies recorded successfully!");
-            // Reset entry fields
             document.getElementById("votesA").value = 0;
             document.getElementById("votesB").value = 0;
             document.getElementById("votesC").value = 0;
+            document.getElementById("votesD").value = 0;
+            document.getElementById("votesE").value = 0;
+            document.getElementById("votesF").value = 0;
             document.getElementById("invalidvoteCount").value = 0;
             document.getElementById("candidateSelect").value = "";
             fetchData();
@@ -685,7 +757,7 @@
     }
 
     function removeAgent(name) {
-        if (initialPresetUsers[name]) return alert("Core structural operational personnel accounts cannot be erased.");
+        if (initialPresetUsers[name]) return alert("Core structural personnel accounts cannot be erased.");
         if (!confirm(`Revoke authentication clearance layer for: ${name}?`)) return;
 
         delete systemUsers[name];
