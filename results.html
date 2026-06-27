@@ -55,30 +55,37 @@
         th, td { padding: 12px 16px; text-align: left; font-size: 14px; border-bottom: 1px solid #e2e8f0; }
         th { font-weight: 700; text-transform: uppercase; font-size: 11px; color: #64748b; letter-spacing: 0.5px; }
         
-        /* Winner Specific Styling Rules */
-        tr.winner-row { background-color: var(--success-light) !important; font-weight: 600; }
+        /* Winner Specific Screen Styling Rules */
+        tr.winner-row { background-color: var(--success-light) !important; font-weight: 700; }
         tr.winner-row td { color: #065f46; border-bottom: 1px solid #bbf7d0; }
         
-        .win-badge { background: var(--success); color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
+        .win-badge { background: var(--success); color: white; padding: 6px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
         
         /* Formal Sign-off Section */
         .certification-panel { display: none; margin-top: 40px; grid-template-columns: repeat(2, 1fr); gap: 40px; padding: 0 20px; }
-        .sig-box { border-top: 1px dashed #000; text-align: center; padding-top: 12px; font-size: 13px; font-weight: 600; color: black; margin-top: 60px; }
+        .sig-box { border-top: 2px solid #000; text-align: center; padding-top: 12px; font-size: 13px; font-weight: 700; color: black; margin-top: 50px; }
 
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* Perfect Print Engine Ruleset */
+        /* Perfect High-Transparency Print Engine Ruleset */
         @media print {
             body { background: white !important; padding: 0 !important; color: black !important; }
             .control-bar { display: none !important; }
-            .container { gap: 16px !important; }
-            .declaration-header { border: none !important; border-bottom: 3px double #000 !important; border-radius: 0 !important; padding: 10px 0 !important; }
-            .portfolio-section { border: none !important; box-shadow: none !important; padding: 0 !important; page-break-inside: avoid; margin-bottom: 24px; }
-            .portfolio-title { background: #e2e8f0 !important; color: black !important; border: 1px solid #000 !important; border-radius: 0 !important; font-size: 13px !important; padding: 6px 10px !important; }
-            th, td { padding: 8px 10px !important; font-size: 12px !important; border-bottom: 1px solid #000 !important; }
-            th { color: black !important; }
-            tr.winner-row { background: transparent !important; }
-            .win-badge { border: 1px solid #000 !important; color: black !important; background: transparent !important; font-weight: bold !important; }
+            .container { gap: 12px !important; }
+            .declaration-header { border: none !important; border-bottom: 3px double #000 !important; border-radius: 0 !important; padding: 10px 0 !important; margin-bottom: 15px; }
+            .portfolio-section { border: none !important; box-shadow: none !important; padding: 0 !important; page-break-inside: avoid; margin-bottom: 20px; }
+            .portfolio-title { background: #f1f5f9 !important; color: black !important; border: 1px solid #000 !important; border-radius: 0 !important; font-size: 13px !important; padding: 6px 10px !important; font-weight: 800 !important; }
+            table { border: 1px solid #000; }
+            th, td { padding: 6px 10px !important; font-size: 12px !important; border-bottom: 1px solid #000 !important; }
+            th { color: black !important; background: #fafafa !important; border-bottom: 2px solid #000 !important; }
+            
+            /* High Transparency Print Rules: Creates an absolute visual block around the winner */
+            tr.winner-row { background: #f8fafc !important; font-weight: 800 !important; }
+            tr.winner-row td { color: black !important; border-top: 2px solid #000 !important; border-bottom: 2px solid #000 !important; }
+            tr.winner-row td:first-child { border-left: 2px solid #000 !important; }
+            tr.winner-row td:last-child { border-right: 2px solid #000 !important; }
+            
+            .win-badge { border: 2px solid #000 !important; color: white !important; background: black !important; font-weight: 900 !important; font-size: 10px !important; padding: 2px 6px !important; border-radius: 2px !important; }
             .certification-panel { display: grid !important; }
         }
     </style>
@@ -101,7 +108,7 @@
         <h1>Congress High School</h1>
         <h2>Electoral Commission Official Declaration Board</h2>
         <div class="divider"></div>
-        <p style="font-size: 13px; font-weight: 500; color: var(--text-muted);">
+        <p style="font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
             Final Tally Matrix Statement of Polls Across All Active Centers (A-F)
         </p>
     </div>
@@ -115,17 +122,17 @@
     <div class="certification-panel">
         <div class="sig-box">
             CHAIRPERSON, ELECTORAL COMMITTEE<br>
-            Sign & Date
+            <span style="font-size: 11px; font-weight: normal; color: #555;">Sign, Date & Stamp</span>
         </div>
         <div class="sig-box">
             HEAD TEACHER / PATRON<br>
-            Sign & Date
+            <span style="font-size: 11px; font-weight: normal; color: #555;">Sign, Date & Stamp</span>
         </div>
     </div>
 </div>
 
 <script>
-    // Exact matching parameters tied directly to your core data grid configuration
+    // Configured Project Credentials linked straight to your live database node
     const SUPABASE_URL = "https://lhjcgoiikqrpnjxaisdt.supabase.co"; 
     const SUPABASE_ANON_KEY = "sb_publishable_YwKjj9y27PmYc7yrV4jtrA_N5AwqzwI";
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -177,7 +184,7 @@
     function connectLiveStream() {
         _supabase.channel('public-display-stream')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'station_tallies' }, () => {
-            pullRecords(); // Auto refresh whenever a data entry terminal saves an update
+            pullRecords(); 
         })
         .subscribe();
     }
@@ -186,11 +193,10 @@
         const container = document.getElementById("hierarchyContainer");
         container.innerHTML = "";
 
-        // Combine local registry overrides with static baseline sets
+        // Dynamically fetch from localStorage to keep in perfect sync with registry changes made on index.html
         const customCandidates = JSON.parse(localStorage.getItem("nhs_dynamic_candidates")) || [];
         const combinedCandidates = customCandidates.length ? customCandidates : [...staticCandidates];
 
-        // Process absolute top winner positions per hierarchy loop block
         let topPositions = {};
         postHierarchy.forEach(post => {
             let postCandidates = combinedCandidates.filter(c => c.post === post);
@@ -198,44 +204,36 @@
             let leaderScore = -1;
 
             postCandidates.forEach(cand => {
-                const match = cachedTallies.find(t => t.candidate_id === cand.id);
-                const totalValid = match ? (
-                    parseInt(match.votes_a || 0) + parseInt(match.votes_b || 0) + 
-                    parseInt(match.votes_c || 0) + parseInt(match.votes_d || 0) + 
-                    parseInt(match.votes_e || 0) + parseInt(match.votes_f || 0)
-                ) : 0;
-
-                if (totalValid > leaderScore && totalValid > 0) {
-                    leaderScore = totalValid;
+                const validTotal = getCandidateTotal(cand.id);
+                if (validTotal > leaderScore && validTotal > 0) {
+                    leaderScore = validTotal;
                     leaderId = cand.id;
                 }
             });
             topPositions[post] = leaderId;
         });
 
-        // Loop directly following your exact Post Order List
         postHierarchy.forEach(post => {
             let candidatesInPost = combinedCandidates.filter(c => c.post === post);
-            if (candidatesInPost.length === 0) return; // Skip empty categories
+            if (candidatesInPost.length === 0) return; 
 
-            // Sort candidates dynamically within this portfolio table block by high score
             candidatesInPost.sort((a, b) => getCandidateTotal(b.id) - getCandidateTotal(a.id));
 
             let section = document.createElement("div");
             section.className = "portfolio-section";
 
-            let totalPostVotes = 0;
             let rowsHtml = "";
 
             candidatesInPost.forEach((cand, idx) => {
                 const match = cachedTallies.find(t => t.candidate_id === cand.id);
                 const valid = getCandidateTotal(cand.id);
                 const invalid = match ? parseInt(match.invalid_votes || 0) : 0;
-                totalPostVotes += (valid + invalid);
 
                 const isWinner = topPositions[post] === cand.id;
                 const rowStyle = isWinner ? 'class="winner-row"' : '';
-                const winIndicator = isWinner ? '<span class="win-badge"><i class="fas fa-check-circle"></i> WIN</span>' : '';
+                
+                // Clear uppercase tag for high visibility scannability
+                const winIndicator = isWinner ? '<span class="win-badge"><i class="fas fa-award"></i> WINNER-ELECT</span>' : '';
 
                 rowsHtml += `
                     <tr ${rowStyle}>
@@ -244,24 +242,24 @@
                         <td>${valid.toLocaleString()}</td>
                         <td>${invalid.toLocaleString()}</td>
                         <td><strong>${(valid + invalid).toLocaleString()}</strong></td>
-                        <td style="text-align: right; width: 120px;">${winIndicator}</td>
+                        <td style="text-align: right; width: 150px;">${winIndicator}</td>
                     </tr>
                 `;
             });
 
             section.innerHTML = `
                 <div class="portfolio-title">
-                    <span>${post}</span>
-                    <span style="font-size: 11px; font-weight: 500; opacity: 0.8;">Registered Portfolio Category</span>
+                    <span>OFFICE: ${post}</span>
+                    <span style="font-size: 11px; font-weight: 500; opacity: 0.8;">Statement of Votes</span>
                 </div>
                 <table>
                     <thead>
                         <tr>
                             <th style="text-align: center;">Rank</th>
                             <th>Candidate Full Identity</th>
-                            <th>Valid Tally</th>
-                            <th>Invalid Tally</th>
-                            <th>Combined Sum</th>
+                            <th>Valid Votes</th>
+                            <th>Invalid Votes</th>
+                            <th>Total Cast</th>
                             <th style="text-align: right;">Status</th>
                         </tr>
                     </thead>
