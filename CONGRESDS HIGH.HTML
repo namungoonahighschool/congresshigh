@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Congress High School - Official Election Results & Declaration Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-main: #f1f5f9;
+            --surface: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #475569;
+            --primary: #1e3a8a;
+            --primary-accent: #2563eb;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --border: #cbd5e1;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--bg-main); color: var(--text-dark); padding: 24px; }
+        .container { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        
+        /* Interactive Control Bar */
+        .control-bar {
+            background: var(--surface); padding: 16px 24px; border-radius: var(--radius);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .status-pill { background: #eff6ff; color: var(--primary-accent); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .status-pill .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
+        
+        .btn-print { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-print:hover { background: #1d4ed8; }
+
+        /* Official Declaration Header Layout */
+        .declaration-header {
+            background: white; border: 2px solid var(--text-dark); padding: 32px; border-radius: var(--radius);
+            text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;
+        }
+        .school-seal { width: 90px; height: 90px; margin-bottom: 8px; }
+        .declaration-header h1 { font-size: 26px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.5px; }
+        .declaration-header h2 { font-size: 15px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .divider { width: 150px; height: 3px; background: var(--text-dark); margin: 8px 0; }
+        
+        /* Hierarchy Grouped Layout */
+        .portfolio-section { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .portfolio-title { font-size: 15px; font-weight: 800; color: white; background: #0f172a; padding: 10px 16px; border-radius: 6px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        th, td { padding: 12px 16px; text-align: left; font-size: 14px; border-bottom: 1px solid #e2e8f0; }
+        th { font-weight: 700; text-transform: uppercase; font-size: 11px; color: #64748b; letter-spacing: 0.5px; }
+        
+        /* Winner Specific Styling Rules */
+        tr.winner-row { background-color: var(--success-light) !important; font-weight: 600; }
+        tr.winner-row td { color: #065f46; border-bottom: 1px solid #bbf7d0; }
+        
+        .win-badge { background: var(--success); color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
+        
+        /* Formal Sign-off Section */
+        .certification-panel { display: none; margin-top: 40px; grid-template-columns: repeat(2, 1fr); gap: 40px; padding: 0 20px; }
+        .sig-box { border-top: 1px dashed #000; text-align: center; padding-top: 12px; font-size: 13px; font-weight: 600; color: black; margin-top: 60px; }
+
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+        /* Perfect Print Engine Ruleset */
+        @media print {
+            body { background: white !important; padding: 0 !important; color: black !important; }
+            .control-bar { display: none !important; }
+            .container { gap: 16px !important; }
+            .declaration-header { border: none !important; border-bottom: 3px double #000 !important; border-radius: 0 !important; padding: 10px 0 !important; }
+            .portfolio-section { border: none !important; box-shadow: none !important; padding: 0 !important; page-break-inside: avoid; margin-bottom: 24px; }
+            .portfolio-title { background: #e2e8f0 !important; color: black !important; border: 1px solid #000 !important; border-radius: 0 !important; font-size: 13px !important; padding: 6px 10px !important; }
+            th, td { padding: 8px 10px !important; font-size: 12px !important; border-bottom: 1px solid #000 !important; }
+            th { color: black !important; }
+            tr.winner-row { background: transparent !important; }
+            .win-badge { border: 1px solid #000 !important; color: black !important; background: transparent !important; font-weight: bold !important; }
+            .certification-panel { display: grid !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="control-bar">
+        <div class="status-pill">
+            <div class="dot"></div>
+            <span>Live Realtime Sync Enabled</span>
+        </div>
+        <button class="btn-print" onclick="window.print()">
+            <i class="fas fa-print"></i> Print Official Declaration Sheet
+        </button>
+    </div>
+
+    <div class="declaration-header">
+        <img class="school-seal" src="CONGRESS BADGE.jpeg" alt="CHS Seal" onerror="this.style.display='none';">
+        <h1>Congress High School</h1>
+        <h2>Electoral Commission Official Declaration Board</h2>
+        <div class="divider"></div>
+        <p style="font-size: 13px; font-weight: 500; color: var(--text-muted);">
+            Final Tally Matrix Statement of Polls Across All Active Centers (A-F)
+        </p>
+    </div>
+
+    <div id="hierarchyContainer" class="container" style="gap: 20px;">
+        <p style="text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px;">
+            <i class="fas fa-spinner fa-spin"></i> Connecting to Supabase stream matrix...
+        </p>
+    </div>
+
+    <div class="certification-panel">
+        <div class="sig-box">
+            CHAIRPERSON, ELECTORAL COMMITTEE<br>
+            Sign & Date
+        </div>
+        <div class="sig-box">
+            HEAD TEACHER / PATRON<br>
+            Sign & Date
+        </div>
+    </div>
+</div>
+
+<script>
+    // Exact matching parameters tied directly to your core data grid configuration
+    const SUPABASE_URL = "https://lhjcgoiikqrpnjxaisdt.supabase.co"; 
+    const SUPABASE_ANON_KEY = "sb_publishable_YwKjj9y27PmYc7yrV4jtrA_N5AwqzwI";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let cachedTallies = [];
+    
+    const postHierarchy = [
+        "PRESIDENT", "VICE PRESIDENT", "CHIEF JUDGE", "DEPUTY CHIEF JUDGE",
+        "GENERAL SECRETARY", "DEPUTY GENERAL SECRETARY", "HEADBOY A'LEVEL", 
+        "HEADGIRL A'LEVEL", "HEADBOY O'LEVEL", "HEADGIRL O'LEVEL", 
+        "SECRETARY FINANCE", "SECRETARY INTERNAL AFFAIRS", "SECRETARY STUDENTS AFFAIRS", 
+        "SECRETARY FEMALE AFFAIRS", "ACADEMIC PREFECT", "INFORMATION AND PUBLICITY",
+        "LANGUAGE PREFECT", "ENTERTAINMENT PREFECT", "HEALTH MINISTER BOYS", 
+        "HEALTH MINISTER GIRLS", "LITURGY CHRISTIANS", "LITURGY MUSLIMS", 
+        "HEAD SECURITY", "DORM CAPT. GIRLS O'LEVEL"
+    ];
+
+    const staticCandidates = [
+        { id: "u1", name: "NAKALEMBE CAROLINE", post: "PRESIDENT" }, { id: "u2", name: "RAYAN YUSUF", post: "PRESIDENT" },
+        { id: "u3", name: "LUKYAMUZI ASHIRAF", post: "VICE PRESIDENT" }, { id: "u4", name: "IRUMBA WILLIAMS", post: "VICE PRESIDENT" },
+        { id: "u5", name: "NANYANZI DESIRE", post: "CHIEF JUDGE" }, { id: "u6", name: "SSENTEZA WILLIAM KEVIN", post: "CHIEF JUDGE" },
+        { id: "u7", name: "BBALE ALEX", post: "DEPUTY CHIEF JUDGE" }, { id: "u8", name: "BABIRYE ABIGAIL NICOLE", post: "DEPUTY CHIEF JUDGE" },
+        { id: "u9", name: "SSEKABIRA JOVAN JONATHAN", post: "DEPUTY CHIEF JUDGE" }, { id: "u10", name: "NAMUBIRU HANIFAH", post: "GENERAL SECRETARY" },
+        { id: "u11", name: "NABULIME JUDITH TENDO", post: "GENERAL SECRETARY" }, { id: "u12", name: "KYOBUTUNGI PROMISE", post: "DEPUTY GENERAL SECRETARY" },
+        { id: "u13", name: "MUSOKI LINIAH", post: "DEPUTY GENERAL SECRETARY" }, { id: "u14", name: "NAYEBALE PATRICIA", post: "DEPUTY GENERAL SECRETARY" },
+        { id: "u15", name: "NANYANZI CHRISTINE NIEL", post: "SECRETARY FEMALE AFFAIRS" }, { id: "u16", name: "NAKABUGO PROSSY", post: "SECRETARY FEMALE AFFAIRS" },
+        { id: "u17", name: "NAKATO IMELDAH", post: "SECRETARY FINANCE" }, { id: "u18", name: "NAKIGOZI ESTHER", post: "SECRETARY FINANCE" },
+        { id: "u19", name: "NABUUFU HARRIET", post: "SECRETARY STUDENTS AFFAIRS" }, { id: "u20", name: "NAKALANZI NASHIBAH", post: "SECRETARY STUDENTS AFFAIRS" },
+        { id: "u21", name: "KASSITA SHARITAH", post: "SECRETARY INTERNAL AFFAIRS" }, { id: "u22", name: "KOMUJUNI LETICIA", post: "SECRETARY INTERNAL AFFAIRS" },
+        { id: "u23", name: "NTEGE PETER", post: "SECRETARY INTERNAL AFFAIRS" }, { id: "u24", name: "MUSIIME LINDAH", post: "LANGUAGE PREFECT" },
+        { id: "p26", name: "NANTEZA MARIA VANNEL", post: "LITURGY CHRISTIANS" }, { id: "p27", name: "MULLO MELLISA ROWEN", post: "LITURGY CHRISTIANS" }, 
+        { id: "p28", name: "KALYESUBULA LINCOS", post: "HEAD SECURITY" }, { id: "p29", name: "WASSWA MUNIB", post: "HEAD SECURITY" }, 
+        { id: "p30", name: "BBOSA TRINITY", post: "DORM CAPT. GIRLS O'LEVEL" }, { id: "p31", name: "NANKINDU JALIA", post: "DORM CAPT. GIRLS O'LEVEL" }, 
+        { id: "p32", name: "NAKAYONDO SHARIMAH TWAHA", post: "DORM CAPT. GIRLS O'LEVEL" }
+    ];
+
+    window.onload = async function() {
+        await pullRecords();
+        connectLiveStream();
+    };
+
+    async function pullRecords() {
+        const { data, error } = await _supabase.from('station_tallies').select('*');
+        if (error) return console.error("Database Link Breakage:", error.message);
+        cachedTallies = data || [];
+        calculateAndRenderHierarchy();
+    }
+
+    function connectLiveStream() {
+        _supabase.channel('public-display-stream')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'station_tallies' }, () => {
+            pullRecords(); // Auto refresh whenever a data entry terminal saves an update
+        })
+        .subscribe();
+    }
+
+    function calculateAndRenderHierarchy() {
+        const container = document.getElementById("hierarchyContainer");
+        container.innerHTML = "";
+
+        // Combine local registry overrides with static baseline sets
+        const customCandidates = JSON.parse(localStorage.getItem("nhs_dynamic_candidates")) || [];
+        const combinedCandidates = customCandidates.length ? customCandidates : [...staticCandidates];
+
+        // Process absolute top winner positions per hierarchy loop block
+        let topPositions = {};
+        postHierarchy.forEach(post => {
+            let postCandidates = combinedCandidates.filter(c => c.post === post);
+            let leaderId = null;
+            let leaderScore = -1;
+
+            postCandidates.forEach(cand => {
+                const match = cachedTallies.find(t => t.candidate_id === cand.id);
+                const totalValid = match ? (
+                    parseInt(match.votes_a || 0) + parseInt(match.votes_b || 0) + 
+                    parseInt(match.votes_c || 0) + parseInt(match.votes_d || 0) + 
+                    parseInt(match.votes_e || 0) + parseInt(match.votes_f || 0)
+                ) : 0;
+
+                if (totalValid > leaderScore && totalValid > 0) {
+                    leaderScore = totalValid;
+                    leaderId = cand.id;
+                }
+            });
+            topPositions[post] = leaderId;
+        });
+
+        // Loop directly following your exact Post Order List
+        postHierarchy.forEach(post => {
+            let candidatesInPost = combinedCandidates.filter(c => c.post === post);
+            if (candidatesInPost.length === 0) return; // Skip empty categories
+
+            // Sort candidates dynamically within this portfolio table block by high score
+            candidatesInPost.sort((a, b) => getCandidateTotal(b.id) - getCandidateTotal(a.id));
+
+            let section = document.createElement("div");
+            section.className = "portfolio-section";
+
+            let totalPostVotes = 0;
+            let rowsHtml = "";
+
+            candidatesInPost.forEach((cand, idx) => {
+                const match = cachedTallies.find(t => t.candidate_id === cand.id);
+                const valid = getCandidateTotal(cand.id);
+                const invalid = match ? parseInt(match.invalid_votes || 0) : 0;
+                totalPostVotes += (valid + invalid);
+
+                const isWinner = topPositions[post] === cand.id;
+                const rowStyle = isWinner ? 'class="winner-row"' : '';
+                const winIndicator = isWinner ? '<span class="win-badge"><i class="fas fa-check-circle"></i> WIN</span>' : '';
+
+                rowsHtml += `
+                    <tr ${rowStyle}>
+                        <td style="width: 50px; text-align: center;">${idx + 1}</td>
+                        <td><strong>${cand.name}</strong></td>
+                        <td>${valid.toLocaleString()}</td>
+                        <td>${invalid.toLocaleString()}</td>
+                        <td><strong>${(valid + invalid).toLocaleString()}</strong></td>
+                        <td style="text-align: right; width: 120px;">${winIndicator}</td>
+                    </tr>
+                `;
+            });
+
+            section.innerHTML = `
+                <div class="portfolio-title">
+                    <span>${post}</span>
+                    <span style="font-size: 11px; font-weight: 500; opacity: 0.8;">Registered Portfolio Category</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Rank</th>
+                            <th>Candidate Full Identity</th>
+                            <th>Valid Tally</th>
+                            <th>Invalid Tally</th>
+                            <th>Combined Sum</th>
+                            <th style="text-align: right;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            `;
+            container.appendChild(section);
+        });
+    }
+
+    function getCandidateTotal(candId) {
+        const match = cachedTallies.find(t => t.candidate_id === candId);
+        if (!match) return 0;
+        return parseInt(match.votes_a || 0) + parseInt(match.votes_b || 0) + 
+               parseInt(match.votes_c || 0) + parseInt(match.votes_d || 0) + 
+               parseInt(match.votes_e || 0) + parseInt(match.votes_f || 0);
+    }
+</script>
+</body>
+</html>
